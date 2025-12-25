@@ -1,8 +1,9 @@
+项目基于https://github.com/LOG1997/log-lottery，在此基础上做了一些改动已复合自身需求
 <div align="center">
     <a href="https://log1997.github.io/log-lottery/">
         <img src="./static/images/lottery.png" width="100" height="100" />
     </a>
-项目基于https://github.com/LOG1997/log-lottery，在此基础上做了一些改动已复合自身需求
+
 # log-lottery 🚀🚀🚀🚀
 
 [![MIT](https://img.shields.io/github/package-json/v/log1997/log-lottery)](https://github.com/LOG1997/log-lottery)
