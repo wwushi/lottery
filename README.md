@@ -2,7 +2,7 @@
     <a href="https://log1997.github.io/log-lottery/">
         <img src="./static/images/lottery.png" width="100" height="100" />
     </a>
-
+项目基于https://github.com/LOG1997/log-lottery，在此基础上做了一些改动已复合自身需求
 # log-lottery 🚀🚀🚀🚀
 
 [![MIT](https://img.shields.io/github/package-json/v/log1997/log-lottery)](https://github.com/LOG1997/log-lottery)
@@ -22,14 +22,6 @@ log-lottery是一个可配置可定制化的抽奖应用，炫酷3D球体，可�
 ## 要求
 
 使用PC端最新版Chrome或Edge浏览器。
-
-访问地址：
-
-<https://to2026.xyz/log-lottery>
-
-or
-
-<https://log1997.github.io/log-lottery/>
 
 ## TODO
 
