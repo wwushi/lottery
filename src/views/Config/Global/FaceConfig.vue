@@ -349,7 +349,8 @@ onMounted(() => {
       >
     </label>
 
-    <label class="w-full max-w-xs mb-10 form-control">
+    <!-- 隐藏头像显示开关 -->
+    <label class="w-full max-w-xs mb-10 form-control" style="display: none;">
         <div class="label">
             <span class="label-text">{{ t('table.avatarDisplay') }}</span>
         </div>

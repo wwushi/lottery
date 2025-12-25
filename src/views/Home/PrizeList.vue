@@ -12,6 +12,9 @@ import { storeToRefs } from 'pinia'
 import { onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+// 定义事件
+const emit = defineEmits(['resetPrizeStatus', 'selectPrize'])
+
 const { t } = useI18n()
 const prizeConfig = useStore().prizeConfig
 const globalConfig = useStore().globalConfig
@@ -198,8 +201,12 @@ onMounted(() => {
       @submit-data="submitData"
     />
     <div ref="prizeListContainerRef">
-      <div v-if="temporaryPrize.isShow" class="h-20 w-72" :class="temporaryPrize.isShow ? 'current-prize' : ''">
-        <div class="relative flex flex-row items-center justify-between w-full h-full shadow-xl card bg-base-100">
+      <div v-if="temporaryPrize.isShow" class="h-20 w-72">
+        <div 
+          class="relative flex flex-row items-center justify-between w-full h-full shadow-xl card bg-base-100 cursor-pointer"
+          :class="currentPrize.id === temporaryPrize.id ? 'current-prize' : ''"
+          @click="emit('selectPrize', temporaryPrize)"
+        >
           <div
             v-if="temporaryPrize.isUsed"
             class="absolute z-50 w-full h-full bg-gray-800/70 item-mask rounded-xl"
@@ -215,14 +222,16 @@ onMounted(() => {
                   temporaryPrize.name }}
               </h2>
             </div>
-            <p class="absolute z-40 p-0 m-0 text-gray-300/80 mt-9">
-              {{ temporaryPrize.isUsedCount }}/{{
-                temporaryPrize.count }}
-            </p>
-            <progress
-              class="w-3/4 h-6 progress progress-primary" :value="temporaryPrize.isUsedCount"
-              :max="temporaryPrize.count"
-            />
+            <div class="relative w-3/4">
+              <p class="absolute inset-0 z-40 p-0 m-0 flex items-center justify-center text-white font-medium">
+                {{ temporaryPrize.isUsedCount }}/{{
+                  temporaryPrize.count }}
+              </p>
+              <progress
+                class="w-full h-6 progress progress-primary" :value="temporaryPrize.isUsedCount"
+                :max="temporaryPrize.count"
+              />
+            </div>
             <!-- <p class="p-0 m-0">{{ item.isUsedCount }}/{{ item.count }}</p> -->
           </div>
           <div class="flex flex-col gap-1 mr-2">
@@ -241,15 +250,16 @@ onMounted(() => {
       </div>
       <transition name="prize-list" :appear="true">
         <div v-if="prizeShow && !isMobile && !temporaryPrize.isShow" class="flex items-center">
-          <ul ref="prizeListRef" class="flex flex-col gap-1 p-2 rounded-xl bg-slate-500/50">
+          <ul ref="prizeListRef" class="flex flex-col gap-3 p-2 rounded-xl bg-slate-500/50">
             <li
-              v-for="item in localPrizeList" :key="item.id"
-              :class="currentPrize.id === item.id ? 'current-prize' : ''"
-            >
-              <div
-                v-if="item.isShow"
-                class="relative flex flex-row items-center justify-between w-64 h-20 shadow-xl card bg-base-100"
-              >
+        v-for="item in localPrizeList" :key="item.id"
+      >
+        <div
+          v-if="item.isShow"
+          class="relative flex flex-row items-center justify-between w-64 h-20 shadow-xl card bg-base-100 cursor-pointer"
+          :class="currentPrize.id === item.id ? 'current-prize' : ''"
+          @click="emit('selectPrize', item)"
+        >
                 <div
                   v-if="item.isUsed"
                   class="absolute z-50 w-full h-full bg-gray-800/70 item-mask rounded-xl"
@@ -269,20 +279,31 @@ onMounted(() => {
                       {{ item.name }}
                     </h2>
                   </div>
-                  <p class="absolute z-40 p-0 m-0 text-gray-300/80 mt-9">
-                    {{ item.isUsedCount }}/{{
-                      item.count }}
-                  </p>
-                  <progress
-                    class="w-3/4 h-6 progress progress-primary" :value="item.isUsedCount"
-                    :max="item.count"
-                  />
+                  <div class="relative w-3/4">
+                    <p class="absolute inset-0 z-40 p-0 m-0 flex items-center justify-center text-white font-medium">
+                      {{ item.isUsedCount }}/{{
+                        item.count }}
+                    </p>
+                    <progress
+                      class="w-full h-6 progress progress-primary" :value="item.isUsedCount"
+                      :max="item.count"
+                    />
+                  </div>
                   <!-- <p class="p-0 m-0">{{ item.isUsedCount }}/{{ item.count }}</p> -->
                 </div>
               </div>
             </li>
           </ul>
           <div class="flex flex-col gap-3">
+            <!-- 重置抽奖状态按钮 -->
+            <div class="tooltip tooltip-right" :data-tip="t('button.resetPrizeStatus')">
+              <div
+                class="flex items-center justify-center w-6 h-8 rounded-r-lg cursor-pointer prize-option bg-slate-500/50"
+                @click="emit('resetPrizeStatus')"
+              >
+                <svg-icon name="reset" class="w-full h-full" />
+              </div>
+            </div>
             <div class="tooltip tooltip-right" :data-tip="t('tooltip.prizeList')">
               <div
                 class="flex items-center w-6 h-8 rounded-r-lg cursor-pointer prize-option bg-slate-500/50"
@@ -305,12 +326,23 @@ onMounted(() => {
     </div>
 
     <transition name="prize-operate" :appear="true">
-      <div v-show="!prizeShow" class="tooltip tooltip-right" :data-tip="t('tooltip.prizeList')">
-        <div
-          class="flex items-center w-6 h-8 rounded-r-lg cursor-pointer prize-option bg-slate-500/50"
-          @click="prizeShow = !prizeShow"
-        >
-          <svg-icon name="arrow_right" class="w-full h-full" />
+      <div v-show="!prizeShow" class="flex flex-col gap-3">
+        <!-- 重置抽奖状态按钮 - 收起状态 -->
+        <div class="tooltip tooltip-right" :data-tip="t('button.resetPrizeStatus')">
+          <div
+            class="flex items-center justify-center w-6 h-8 rounded-r-lg cursor-pointer prize-option bg-slate-500/50"
+            @click="emit('resetPrizeStatus')"
+          >
+            <svg-icon name="reset" class="w-full h-full" />
+          </div>
+        </div>
+        <div class="tooltip tooltip-right" :data-tip="t('tooltip.prizeList')">
+          <div
+            class="flex items-center w-6 h-8 rounded-r-lg cursor-pointer prize-option bg-slate-500/50"
+            @click="prizeShow = !prizeShow"
+          >
+            <svg-icon name="arrow_right" class="w-full h-full" />
+          </div>
         </div>
       </div>
     </transition>
@@ -341,45 +373,56 @@ onMounted(() => {
 .current-prize {
     position: relative;
     display: block;
-    overflow: hidden;
-    isolation: isolate;
-
+    overflow: visible;
     border-radius: 20px;
-    padding: 3px;
+    /* 使用柔和的单一层边框效果 */
+    box-shadow: 
+        0 0 0 2px rgba(79, 207, 112, 0.8),
+        0 0 8px rgba(255, 255, 255, 0.3);
+    transition: box-shadow 0.3s ease;
 }
 
-.current-prize::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 400%;
-    height: 100%;
-    background: linear-gradient(115deg, #4fcf70, #fad648, #a767e5, #12bcfe, #44ce7b);
-    background-size: 25% 100%;
-    animation: an-at-keyframe-css-at-rule-that-translates-via-the-transform-property-the-background-by-negative-25-percent-of-its-width-so-that-it-gives-a-nice-border-animation_-We-use-the-translate-property-to-have-a-nice-transition-so-it_s-not-a-jerk-of-a-start-or-stop .75s linear infinite;
-    // animation-play-state: paused;
-    translate: -5% 0%;
-    transition: translate 0.25s ease-out;
-    animation-play-state: running;
-    transition-duration: 0.75s;
-    translate: 0% 0%;
+/* 确保奖项卡片内部布局正确 */
+.card {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
 }
 
-.current-prize::after {
-    content: "";
-    position: absolute;
-    inset: 4px;
-    border-top-left-radius: 20px;
-    border-bottom-right-radius: 20px;
-    z-index: -1;
+.card-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    flex: 1;
+    padding: 0;
+    margin: 0;
 }
 
-@keyframes an-at-keyframe-css-at-rule-that-translates-via-the-transform-property-the-background-by-negative-25-percent-of-its-width-so-that-it-gives-a-nice-border-animation_-We-use-the-translate-property-to-have-a-nice-transition-so-it_s-not-a-jerk-of-a-start-or-stop {
-    to {
-        transform: translateX(-25%);
-    }
+/* 确保h2标题正确显示 */
+.card-title {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
+
+/* 确保进度条和计数文字正确对齐 */
+.card-body p {
+    margin: 0;
+    padding: 0;
+}
+
+.card-body progress {
+    margin: 0;
+    padding: 0;
+}
+
+
 
 @-webkit-keyframes slide-right {
     0% {

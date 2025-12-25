@@ -25,6 +25,11 @@ function handleMoveNotPerson(row: IPersonConfig) {
   personConfig.moveAlreadyToNot(row)
 }
 
+// 一键将所有已中奖人员移入未中奖名单
+function resetAllWinner() {
+  personConfig.resetAlreadyPerson()
+}
+
 const tableColumnsList = [
   {
     label: i18n.global.t('data.number'),
@@ -134,6 +139,11 @@ const tableColumnsDetail = [
             <input v-model="isDetail" type="checkbox" class="border-solid toggle toggle-primary border-1">
           </label>
         </div>
+      </div>
+      <div>
+        <button class="btn btn-warning btn-sm" @click="resetAllWinner">
+          {{ t('button.resetAllWinner') }}
+        </button>
       </div>
     </div>
     <DaiysuiTable v-if="!isDetail" :table-columns="tableColumnsList" :data="alreadyPersonList" />

@@ -163,6 +163,25 @@ export const usePrizeConfig = defineStore('prize', {
         } as IPrizeConfig,
       }
     },
+    // 重置所有奖项到未开始状态
+    resetAllPrizeStatus() {
+      // 重置所有奖项状态
+      this.prizeConfig.prizeList.forEach(prize => {
+        prize.isUsed = false
+        prize.isUsedCount = 0
+        // 重置各批次抽取状态
+        if (prize.separateCount && prize.separateCount.countList) {
+          prize.separateCount.countList.forEach(separate => {
+            separate.isUsedCount = 0
+          })
+        }
+      })
+      // 设置第一个未使用的奖项为当前奖项
+      const firstUnusedPrize = this.prizeConfig.prizeList.find(prize => !prize.isUsed)
+      if (firstUnusedPrize) {
+        this.setCurrentPrize(firstUnusedPrize)
+      }
+    },
   },
   persist: {
     enabled: true,

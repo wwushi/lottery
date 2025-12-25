@@ -39,22 +39,31 @@ export function useElementStyle(element: any, person: IPersonConfig, index: numb
   }
 
   element.children[1].style.fontSize = `${textSize}px`
-  element.children[1].style.lineHeight = `${textSize * 3}px`
+  element.children[1].style.lineHeight = `1.2`
   element.children[1].style.textShadow = `0 0 12px ${rgba(cardColor, 0.95)}`
   if (person.name) {
-    element.children[1].textContent = person.name
+    // 检测中英文混合姓名，将中文名和英文名分行显示
+    const name = person.name
+    // 匹配中文姓名和英文姓名的模式
+    const chinesePattern = /[\u4e00-\u9fa5]+/g
+    const englishPattern = /[a-zA-Z\s]+/g
+    
+    const chineseName = name.match(chinesePattern)?.[0] || ''
+    const englishName = name.match(englishPattern)?.[0]?.trim() || ''
+    
+    if (chineseName && englishName) {
+      // 如果同时包含中文和英文，分行显示
+      element.children[1].innerHTML = `${chineseName}<br/>${englishName}`
+    } else {
+      // 否则直接显示
+      element.children[1].textContent = name
+    }
   }
   element.children[2].style.fontSize = `${textSize * 0.5}px`
   if (person.department || person.identity) {
     element.children[2].innerHTML = `${person.department ? person.department : ''}<br/>${person.identity ? person.identity : ''}`
   }
-
-    element.children[2].style.fontSize = textSize * 0.5 + 'px'
-    if (person.department || person.identity) {
-        element.children[2].innerHTML = `${person.department ? person.department : ''}<br/>${person.identity ? person.identity : ''}`
-    }
-    element.children[3].src = person.avatar
-    return element
+  return element
 }
 
 /**

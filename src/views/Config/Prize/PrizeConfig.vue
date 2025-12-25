@@ -139,6 +139,14 @@ function delItem(item: IPrizeConfig) {
 async function delAll() {
   await prizeConfig.deleteAllPrizeConfig()
 }
+
+// 重置所有奖项到未开始状态
+function resetAllPrizeStatus() {
+  // 重置奖项状态
+  prizeConfig.resetAllPrizeStatus()
+  // 同时重置人员中奖状态
+  useStore().personConfig.resetAlreadyPerson()
+}
 onMounted(() => {
   getImageDbStore()
 })
@@ -156,6 +164,9 @@ watch(() => prizeList.value, (val: IPrizeConfig[]) => {
       </button>
       <button class="btn btn-info btn-sm" @click="resetDefault">
         {{ t('button.resetDefault') }}
+      </button>
+      <button class="btn btn-warning btn-sm" @click="resetAllPrizeStatus">
+        {{ t('button.resetPrizeStatus') }}
       </button>
       <button class="btn btn-error btn-sm" @click="delAll">
         {{ t('button.allDelete') }}

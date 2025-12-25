@@ -11,22 +11,31 @@
 
     .card-name {
         position: absolute;
-        top: 40px;
-        left: 0px;
-        right: 0;
+        top: 60px;
+        left: 10px;
+        right: 10px;
+        width: calc(100% - 20px);
         font-weight: bold;
-        white-space: nowrap;
+        white-space: normal;
+        word-break: break-word;
         overflow: hidden;
-        text-overflow: ellipsis;
+        line-height: 1.1;
+        max-height: 3.3em;
         z-index: 2;
+        text-align: center;
     }
 
     .card-avatar-name{
         top: auto;
         bottom: 0;
-        left: 0px;
-        right: 0;
-        line-height: 2 !important;
+        left: 10px;
+        right: 10px;
+        width: calc(100% - 20px);
+        white-space: normal;
+        word-break: break-word;
+        overflow: hidden;
+        line-height: 1.1 !important;
+        max-height: 3.3em;
     }
 
     .card-detail {
@@ -68,13 +77,17 @@
         text-align: center;
         z-index: 2;
         position: absolute;
-        top: 40px;
-        left: 0px;
-        right: 0;
+        top: 50%;
+        left: 10px;
+        right: 10px;
+        width: calc(100% - 20px);
         font-weight: bold;
-        white-space: nowrap;
+        white-space: normal;
+        word-break: break-word;
         overflow: hidden;
-        text-overflow: ellipsis;
+        line-height: 1.1;
+        max-height: 3.3em;
+        transform: translateY(-50%);
         // -webkit-animation: tracking-in-expand-fwd 0.8s cubic-bezier(0.215, 0.61, 0.355, 1) both;
         // animation: tracking-in-expand-fwd 0.8s cubic-bezier(0.215, 0.61, 0.355, 1) both;
         // animation-delay: 0.6s;
@@ -82,9 +95,14 @@
     .card-avatar-name{
         top: auto;
         bottom: 0;
-        left: 0px;
-        right: 0;
-        line-height: 2 !important;
+        left: 10px;
+        right: 10px;
+        width: calc(100% - 20px);
+        white-space: normal;
+        word-break: break-word;
+        overflow: hidden;
+        line-height: 1.1 !important;
+        max-height: 3.3em;
     }
 
     .card-detail {
