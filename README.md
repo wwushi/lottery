@@ -76,9 +76,3 @@ docker run -d -p 9279:80 log-lottery
 
 容器运行成功后即可在本地通过<http://localhost:9279/log-lottery/>访问
 
-
-[![Star History Chart](https://api.star-history.com/svg?repos=LOG1997/log-lottery&type=Date)](https://star-history.com/#LOG1997/log-lottery&Date)
-
-## License
-
-[MIT](http://opensource.org/licenses/MIT)
