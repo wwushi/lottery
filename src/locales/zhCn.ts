@@ -57,6 +57,9 @@ export default {
     operation: '操作',
     setLuckyNumber: '设置中奖人数',
     luckyPeopleNumber: '中奖人数',
+    totalPersonCount: '参与人数',
+    alreadyPersonCount: '已中奖人数',
+    notPersonCount: '未中奖人数',
 
     detail: '详细信息',
     noneData: '暂无数据',

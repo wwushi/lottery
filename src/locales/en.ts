@@ -57,6 +57,9 @@ export default {
     operation: 'Operation',
     setLuckyNumber: 'Set Lucky Number',
     luckyPeopleNumber: 'Lucky People Number',
+    totalPersonCount: 'Total Participants',
+    alreadyPersonCount: 'Winners',
+    notPersonCount: 'Remaining Participants',
 
     detail: 'Detail',
     noneData: 'No Data',

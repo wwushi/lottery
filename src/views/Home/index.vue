@@ -13,7 +13,7 @@ import { storeToRefs } from 'pinia'
 import { Object3D, PerspectiveCamera, Scene, Vector3 } from 'three'
 import { CSS3DObject, CSS3DRenderer } from 'three-css3d'
 import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls.js'
-import { nextTick, onMounted, onUnmounted, ref } from 'vue'
+import { nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toast-notification'
@@ -26,8 +26,9 @@ const router = useRouter()
 const personConfig = useStore().personConfig
 const globalConfig = useStore().globalConfig
 const prizeConfig = useStore().prizeConfig
+const system = useStore().system
 
-const { getAllPersonList: allPersonList, getNotPersonList: notPersonList, getNotThisPrizePersonList: notThisPrizePersonList,
+const { getAllPersonList: allPersonList, getAlreadyPersonList: alreadyPersonList, getNotPersonList: notPersonList, getNotThisPrizePersonList: notThisPrizePersonList,
 } = storeToRefs(personConfig)
 const { getCurrentPrize: currentPrize, getPrizeConfig: prizeList } = storeToRefs(prizeConfig)
 const { getTopTitle: topTitle, getCardColor: cardColor, getPatterColor: patternColor, getPatternList: patternList, getTextColor: textColor, getLuckyColor: luckyColor, getCardSize: cardSize, getTextSize: textSize, getRowCount: rowCount, getBackground: homeBackground, getIsShowAvatar: isShowAvatar } = storeToRefs(globalConfig)
@@ -68,6 +69,7 @@ function initTableData() {
   if (allPersonList.value.length <= 0) {
     return
   }
+  // 恢复原来的球体卡片数量，7行
   const totalCount = rowCount.value * 7
   const originPersonData = JSON.parse(JSON.stringify(allPersonList.value))
   const originPersonLength = originPersonData.length
@@ -132,7 +134,7 @@ function init() {
     detail.innerHTML = `${tableData.value[i].department}<br/>${tableData.value[i].identity}`
     element.appendChild(detail)
 
-    element = useElementStyle(element, tableData.value[i], i, patternList.value, patternColor.value, cardColor.value, cardSize.value, textSize.value)
+    element = useElementStyle(element, tableData.value[i], i, patternList.value, patternColor.value, cardColor.value, cardSize.value, textSize.value, textColor.value)
     const object = new CSS3DObject(element)
     object.position.x = Math.random() * 4000 - 2000
     object.position.y = Math.random() * 4000 - 2000
@@ -170,12 +172,12 @@ function init() {
       const theta = Math.sqrt(objLength * Math.PI) * phi
       const object = new Object3D()
 
-      object.position.x = 800 * Math.cos(theta) * Math.sin(phi)
-      object.position.y = 800 * Math.sin(theta) * Math.sin(phi)
-      object.position.z = -800 * Math.cos(phi)
+      // 放大球体半径，从800改为1000
+      object.position.x = 1000 * Math.cos(theta) * Math.sin(phi)
+      object.position.y = 1000 * Math.sin(theta) * Math.sin(phi)
+      object.position.z = -1000 * Math.cos(phi)
 
       // rotation object
-
       vector.copy(object.position).multiplyScalar(2)
       object.lookAt(vector)
       targets.sphere.push(object)
@@ -211,52 +213,52 @@ function init() {
 }
 
 function transform(targets: any[], duration: number) {
-  TWEEN.removeAll()
-  if (intervalTimer.value) {
-    clearInterval(intervalTimer.value)
-    intervalTimer.value = null
-    randomBallData('sphere')
-  }
-
-  return new Promise((resolve) => {
-    const objLength = objects.value.length
-    for (let i = 0; i < objLength; ++i) {
-      const object = objects.value[i]
-      const target = targets[i]
-      new TWEEN.Tween(object.position)
-        .to({ x: target.position.x, y: target.position.y, z: target.position.z }, Math.random() * duration + duration)
-        .easing(TWEEN.Easing.Exponential.InOut)
-        .start()
-
-      new TWEEN.Tween(object.rotation)
-        .to({ x: target.rotation.x, y: target.rotation.y, z: target.rotation.z }, Math.random() * duration + duration)
-        .easing(TWEEN.Easing.Exponential.InOut)
-        .start()
-        .onComplete(() => {
-          if (luckyCardList.value.length) {
-            luckyCardList.value.forEach((cardIndex: any) => {
-              const item = objects.value[cardIndex]
-              useElementStyle(item.element, {} as any, i, patternList.value, patternColor.value, cardColor.value, cardSize.value, textSize.value, 'sphere')
-            })
-          }
-          luckyTargets.value = []
-          luckyCardList.value = []
-
-          canOperate.value = true
-        })
+    TWEEN.removeAll()
+    if (intervalTimer.value) {
+      clearInterval(intervalTimer.value)
+      intervalTimer.value = null
+      randomBallData('sphere')
     }
 
-    // 这个补间用来在位置与旋转补间同步执行，通过onUpdate在每次更新数据后渲染scene和camera
-    new TWEEN.Tween({})
-      .to({}, duration * 2)
-      .onUpdate(render)
-      .start()
-      .onComplete(() => {
-        canOperate.value = true
-        resolve('')
-      })
-  })
-}
+    return new Promise((resolve) => {
+      const objLength = objects.value.length
+      for (let i = 0; i < objLength; ++i) {
+        const object = objects.value[i]
+        const target = targets[i]
+        new TWEEN.Tween(object.position)
+          .to({ x: target.position.x, y: target.position.y, z: target.position.z }, Math.random() * duration + duration)
+          .easing(TWEEN.Easing.Exponential.InOut)
+          .start()
+
+        new TWEEN.Tween(object.rotation)
+          .to({ x: target.rotation.x, y: target.rotation.y, z: target.rotation.z }, Math.random() * duration + duration)
+          .easing(TWEEN.Easing.Exponential.InOut)
+          .start()
+          .onComplete(() => {
+            if (luckyCardList.value.length) {
+              luckyCardList.value.forEach((cardIndex: any) => {
+                const item = objects.value[cardIndex]
+                useElementStyle(item.element, {} as any, i, patternList.value, patternColor.value, cardColor.value, cardSize.value, textSize.value, textColor.value, 'sphere')
+              })
+            }
+            luckyTargets.value = []
+            luckyCardList.value = []
+
+            canOperate.value = true
+          })
+      }
+
+      // 这个补间用来在位置与旋转补间同步执行，通过onUpdate在每次更新数据后渲染scene和camera
+      new TWEEN.Tween({})
+        .to({}, duration * 2)
+        .onUpdate(render)
+        .start()
+        .onComplete(() => {
+          canOperate.value = true
+          resolve('')
+        })
+    })
+  }
 function onWindowResize() {
   camera.value.aspect = window.innerWidth / window.innerHeight
   camera.value.updateProjectionMatrix()
@@ -366,9 +368,11 @@ async function enterLottery() {
     }
   }
   canOperate.value = false
-  await transform(targets.sphere, 1000)
+  // 减少transform动画时间，加快进入抽奖状态
+  await transform(targets.sphere, 500)
   currentStatus.value = 1
-  rollBall(0.1, 2000)
+  // 简化rollBall动画，减少执行时间
+  rollBall(0.1, 500)
 }
 // 开始抽奖
 function startLottery() {
@@ -428,6 +432,14 @@ function startLottery() {
     position: 'top-right',
     duration: 8000,
   })
+  
+  // 抽奖开始时播放随机音乐
+  if (globalConfig.getMusicList.length > 0) {
+    const randomIndex = Math.floor(Math.random() * globalConfig.getMusicList.length)
+    const randomMusic = globalConfig.getMusicList[randomIndex]
+    globalConfig.setCurrentMusic(randomMusic, false)
+  }
+  
   currentStatus.value = 2
   rollBall(10, 3000)
 }
@@ -440,6 +452,11 @@ async function stopLottery() {
   //   intervalTimer.value = null
   canOperate.value = false
   rollBall(0, 1)
+  
+  // 抽奖结束时停止音乐
+  if (globalConfig.getMusicList.length > 0) {
+    globalConfig.setCurrentMusic(globalConfig.getCurrentMusic.item, true)
+  }
 
   const windowSize = { width: window.innerWidth, height: window.innerHeight }
   luckyTargets.value.forEach((person: IPersonConfig, index: number) => {
@@ -456,7 +473,7 @@ async function stopLottery() {
       }, 1200)
       .easing(TWEEN.Easing.Exponential.InOut)
       .onStart(() => {
-        item.element = useElementStyle(item.element, person, cardIndex, patternList.value, patternColor.value, luckyColor.value, { width: cardSize.value.width * 2, height: cardSize.value.height * 2 }, textSize.value * 2, 'lucky')
+        item.element = useElementStyle(item.element, person, cardIndex, patternList.value, patternColor.value, luckyColor.value, { width: cardSize.value.width * 2, height: cardSize.value.height * 2 }, textSize.value * 2, textColor.value, 'lucky')
       })
       .start()
       .onComplete(() => {
@@ -578,7 +595,7 @@ function resetPrizeStatus() {
 }
 
 // 切换当前奖项
-function changeCurrentPrize(prizeId) {
+function changeCurrentPrize(prizeId: number) {
   const selectedPrize = prizeList.value.find(prize => prize.id === prizeId)
   if (selectedPrize) {
     prizeConfig.setCurrentPrize(selectedPrize)
@@ -606,7 +623,7 @@ function randomBallData(mod: 'default' | 'lucky' | 'sphere' = 'default') {
       if (!objects.value[cardRandomIndexArr[i]]) {
         continue
       }
-      objects.value[cardRandomIndexArr[i]].element = useElementStyle(objects.value[cardRandomIndexArr[i]].element, allPersonList.value[personRandomIndexArr[i]], cardRandomIndexArr[i], patternList.value, patternColor.value, cardColor.value, { width: cardSize.value.width, height: cardSize.value.height }, textSize.value, mod, 'change')
+      objects.value[cardRandomIndexArr[i]].element = useElementStyle(objects.value[cardRandomIndexArr[i]].element, allPersonList.value[personRandomIndexArr[i]], cardRandomIndexArr[i], patternList.value, patternColor.value, cardColor.value, { width: cardSize.value.width, height: cardSize.value.height }, textSize.value, textColor.value, mod, 'change')
     }
   }, 200)
 }
@@ -699,6 +716,13 @@ onMounted(() => {
   containerRef.value!.style.color = `${textColor}`
   randomBallData()
   window.addEventListener('keydown', listenKeyboard)
+  // 初始化抽奖状态
+  system.setLotteryStatus(currentStatus.value)
+})
+
+// 监听currentStatus变化，同步到system store
+watch(currentStatus, (newStatus) => {
+  system.setLotteryStatus(newStatus)
 })
 onUnmounted(() => {
   nextTick(() => {
@@ -713,7 +737,7 @@ onUnmounted(() => {
 <template>
   <div class="absolute z-10 flex flex-col items-center justify-center -translate-x-1/2 left-1/2">
     <h2
-      class="pt-12 m-0 mb-12 font-mono tracking-wide text-center leading-12 header-title"
+      class="pt-12 m-0 mb-4 font-mono tracking-wide text-center leading-12 header-title"
       :style="{ fontSize: `${textSize * 1.5}px`, color: textColor }"
     >
       {{ topTitle }}
@@ -732,6 +756,14 @@ onUnmounted(() => {
         {{ t('button.useDefault') }}
       </button>
     </div>
+  </div>
+  <!-- 显示参与抽奖人数 -->
+  <div 
+    v-if="allPersonList.length > 0" 
+    class="absolute top-4 left-4 z-10 font-mono px-4 py-2 bg-opacity-80 bg-black/60 backdrop-blur-sm rounded-lg shadow-lg border border-gray-700"
+    :style="{ fontSize: `${textSize * 0.6}px`, color: textColor }"
+  >
+    <span class="font-bold">{{ t('table.totalPersonCount') }}:</span> {{ allPersonList.length }}
   </div>
   <div id="container" ref="containerRef" class="3dContainer">
     <!-- 选中菜单结构 start -->
@@ -791,7 +823,7 @@ onUnmounted(() => {
     <!-- end -->
   </div>
   <StarsBackground :home-background="homeBackground" />
-  <PrizeList class="absolute left-0 top-32" @reset-prize-status="resetPrizeStatus" @select-prize="prizeConfig.setCurrentPrize" />
+  <PrizeList class="absolute left-0 top-32" @reset-prize-status="resetPrizeStatus" @select-prize="prizeConfig.setCurrentPrize" :lottery-status="currentStatus" />
 </template>
 
 <style scoped lang="scss">
@@ -799,10 +831,15 @@ onUnmounted(() => {
     position: absolute;
     z-index: 100;
     width: 100%;
-    bottom: 50px;
+    bottom: 15px;
     text-align: center;
     margin: 0 auto;
     font-size: 32px;
+}
+
+/* 为3D容器添加较低的z-index，确保抽奖按钮始终显示在球体之上 */
+#container {
+    z-index: 1;
 }
 
 .header-title {

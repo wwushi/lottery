@@ -1,15 +1,12 @@
 <script setup lang='ts'>
 import type { IPrizeConfig } from '../../types/storeType'
-import defaultPrizeImage from '@/assets/images/龙.png'
-import ImageSync from '@/components/ImageSync/index.vue'
-
 import EditSeparateDialog from '@/components/NumberSeparate/EditSeparateDialog.vue'
 import i18n from '@/locales/i18n'
 import useStore from '@/store'
 
 import { storeToRefs } from 'pinia'
 
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 // 定义事件
@@ -20,13 +17,34 @@ const prizeConfig = useStore().prizeConfig
 const globalConfig = useStore().globalConfig
 const system = useStore().system
 const { getPrizeConfig: localPrizeList, getCurrentPrize: currentPrize, getTemporaryPrize: temporaryPrize } = storeToRefs(prizeConfig)
-const { getIsShowPrizeList: isShowPrizeList, getImageList: localImageList } = storeToRefs(globalConfig)
+const { getIsShowPrizeList: isShowPrizeList } = storeToRefs(globalConfig)
 const { getIsMobile: isMobile } = storeToRefs(system)
 const prizeListRef = ref()
 const prizeListContainerRef = ref()
 
 const temporaryPrizeRef = ref()
 const selectedPrize = ref<IPrizeConfig | null>()
+
+// 添加抽奖状态支持，接收来自父组件的抽奖状态
+const props = defineProps<{
+  lotteryStatus?: number // 0为初始状态， 1为抽奖准备状态，2为抽奖中状态，3为抽奖结束状态
+}>()
+
+// 默认抽奖状态
+const currentLotteryStatus = ref(0)
+
+// 监听props变化
+watch(() => props.lotteryStatus, (newStatus) => {
+  if (newStatus !== undefined) {
+    currentLotteryStatus.value = newStatus
+  }
+})
+
+// 只有在抽奖中（状态2）和抽奖结束（状态3）时不允许切换奖项，抽奖准备状态（状态1）和初始状态（状态0）都可以切换奖项
+const canSwitchPrize = computed(() => {
+  return currentLotteryStatus.value !== 2 && currentLotteryStatus.value !== 3
+})
+
 // 获取prizeListRef高度
 function getPrizeListHeight() {
   let height = 200
@@ -92,7 +110,10 @@ function setCurrentPrize() {
   }
 }
 onMounted(() => {
-  prizeListContainerRef.value.style.height = `${getPrizeListHeight()}px`
+  // 确保prizeListContainerRef存在时才设置样式
+  if (prizeListContainerRef.value) {
+    prizeListContainerRef.value.style.height = `${getPrizeListHeight()}px`
+  }
   setCurrentPrize()
 })
 </script>
@@ -111,6 +132,15 @@ onMounted(() => {
             </div>
             <input
               v-model="temporaryPrize.name" type="text" :placeholder="t('placeHolder.name')"
+              class="max-w-xs input-sm input input-bordered"
+            >
+          </label>
+          <label class="flex w-full max-w-xs">
+            <div class="label">
+              <span class="label-text">{{ t('table.prizeName') }}:</span>
+            </div>
+            <input
+              v-model="temporaryPrize.prizeName" type="text" :placeholder="t('placeHolder.name')"
               class="max-w-xs input-sm input input-bordered"
             >
           </label>
@@ -170,19 +200,6 @@ onMounted(() => {
               <button v-else class="btn btn-secondary btn-xs">{{ t('button.setting') }}</button>
             </div>
           </label>
-          <label class="flex w-full max-w-xs">
-            <div class="label">
-              <span class="label-text">{{ t('table.image') }}</span>
-            </div>
-            <select v-model="temporaryPrize.picture" class="flex-1 w-12 select select-warning select-sm">
-              <option v-if="temporaryPrize.picture.id" :value="{ id: '', name: '', url: '' }">❌
-              </option>
-              <option disabled selected>{{ t('table.selectPicture') }}</option>
-              <option v-for="picItem in localImageList" :key="picItem.id" class="w-auto" :value="picItem">{{
-                picItem.name }}
-              </option>
-            </select>
-          </label>
         </div>
         <div class="modal-action">
           <form method="dialog" class="flex gap-3">
@@ -204,26 +221,27 @@ onMounted(() => {
       <div v-if="temporaryPrize.isShow" class="h-20 w-72">
         <div 
           class="relative flex flex-row items-center justify-between w-full h-full shadow-xl card bg-base-100 cursor-pointer"
-          :class="currentPrize.id === temporaryPrize.id ? 'current-prize' : ''"
-          @click="emit('selectPrize', temporaryPrize)"
+          :class="{
+                      'current-prize': currentPrize.id === temporaryPrize.id,
+                      'opacity-50 cursor-not-allowed': temporaryPrize.isUsed || currentLotteryStatus === 2 || currentLotteryStatus === 3
+                    }"
+          @click="!temporaryPrize.isUsed && canSwitchPrize && emit('selectPrize', temporaryPrize)"
         >
           <div
             v-if="temporaryPrize.isUsed"
             class="absolute z-50 w-full h-full bg-gray-800/70 item-mask rounded-xl"
           />
-          <figure class="w-10 h-10 rounded-xl">
-            <ImageSync v-if="temporaryPrize.picture.url" :img-item="temporaryPrize.picture" />
-            <img v-else :src="defaultPrizeImage" alt="Prize" class="object-cover h-full rounded-xl">
-          </figure>
-          <div class="items-center p-0 text-center card-body">
-            <div class="tooltip tooltip-left" :data-tip="temporaryPrize.name">
+          <div class="flex flex-col justify-center items-center p-0 text-center card-body">
+            <div class="flex flex-col justify-center items-center tooltip tooltip-left" :data-tip="temporaryPrize.prizeName || temporaryPrize.name">
               <h2 class="p-0 m-0 overflow-hidden w-28 card-title whitespace-nowrap text-ellipsis">
-                {{
-                  temporaryPrize.name }}
+                {{temporaryPrize.name }}
               </h2>
+              <p class="p-0 m-0 text-sm text-gray-500">
+                {{ temporaryPrize.prizeName }}
+              </p>
             </div>
-            <div class="relative w-3/4">
-              <p class="absolute inset-0 z-40 p-0 m-0 flex items-center justify-center text-white font-medium">
+            <div class="relative w-3/4 mt-[-4px]">
+              <p class="absolute inset-0 z-40 p-0 m-0 flex items-center justify-center font-medium text-white">
                 {{ temporaryPrize.isUsedCount }}/{{
                   temporaryPrize.count }}
               </p>
@@ -236,12 +254,12 @@ onMounted(() => {
           </div>
           <div class="flex flex-col gap-1 mr-2">
             <div class="tooltip tooltip-left" :data-tip="t('tooltip.edit')">
-              <div class="cursor-pointer hover:text-blue-400" @click="addTemporaryPrize">
+              <div class="cursor-pointer hover:text-blue-400" :class="{'opacity-50 cursor-not-allowed': currentLotteryStatus === 2 || currentLotteryStatus === 3}" @click="canSwitchPrize && addTemporaryPrize">
                 <svg-icon name="edit" />
               </div>
             </div>
             <div class="tooltip tooltip-left" :data-tip="t('tooltip.delete')">
-              <div class="cursor-pointer hover:text-blue-400" @click="deleteTemporaryPrize">
+              <div class="cursor-pointer hover:text-blue-400" :class="{'opacity-50 cursor-not-allowed': currentLotteryStatus === 2 || currentLotteryStatus === 3}" @click="canSwitchPrize && deleteTemporaryPrize">
                 <svg-icon name="delete" />
               </div>
             </div>
@@ -251,39 +269,37 @@ onMounted(() => {
       <transition name="prize-list" :appear="true">
         <div v-if="prizeShow && !isMobile && !temporaryPrize.isShow" class="flex items-center">
           <ul ref="prizeListRef" class="flex flex-col gap-3 p-2 rounded-xl bg-slate-500/50">
-            <li
-        v-for="item in localPrizeList" :key="item.id"
-      >
-        <div
-          v-if="item.isShow"
-          class="relative flex flex-row items-center justify-between w-64 h-20 shadow-xl card bg-base-100 cursor-pointer"
-          :class="currentPrize.id === item.id ? 'current-prize' : ''"
-          @click="emit('selectPrize', item)"
-        >
+            <li v-for="item in localPrizeList" :key="item.id">
+              <div
+                  v-if="item.isShow"
+                  class="relative flex flex-row items-center justify-between w-64 h-20 shadow-xl card bg-base-100 cursor-pointer"
+                  :class="{
+                    'current-prize': currentPrize.id === item.id,
+                    'lottery-in-progress': currentPrize.id === item.id && currentLotteryStatus === 2,
+                    'opacity-50 cursor-not-allowed': item.isUsed || currentLotteryStatus === 2 || currentLotteryStatus === 3
+                  }"
+                  @click="!item.isUsed && canSwitchPrize && emit('selectPrize', item)"
+                >
                 <div
                   v-if="item.isUsed"
                   class="absolute z-50 w-full h-full bg-gray-800/70 item-mask rounded-xl"
                 />
-                <figure class="w-10 h-10 rounded-xl">
-                  <ImageSync v-if="item.picture.url" :img-item="item.picture" />
-                  <img
-                    v-else :src="defaultPrizeImage" alt="Prize"
-                    class="object-cover h-full rounded-xl"
-                  >
-                </figure>
-                <div class="items-center p-0 text-center card-body">
-                  <div class="tooltip tooltip-left" :data-tip="item.name">
+                <div class="flex flex-col justify-center items-center p-0 text-center card-body">
+                  <div class="flex flex-col justify-center items-center tooltip tooltip-left" :data-tip="item.prizeName || item.name">
                     <h2
                       class="w-24 p-0 m-0 overflow-hidden text-center card-title whitespace-nowrap text-ellipsis"
                     >
                       {{ item.name }}
                     </h2>
-                  </div>
-                  <div class="relative w-3/4">
-                    <p class="absolute inset-0 z-40 p-0 m-0 flex items-center justify-center text-white font-medium">
-                      {{ item.isUsedCount }}/{{
-                        item.count }}
+                    <p class="p-0 m-0 text-sm text-gray-500">
+                      {{ item.prizeName }}
                     </p>
+                  </div>
+                  <div class="relative w-3/4 mt-[-4px]">
+                    <p class="absolute inset-0 z-40 p-0 m-0 flex items-center justify-center font-medium text-white">
+                    {{ item.isUsedCount }}/{{
+                      item.count }}
+                  </p>
                     <progress
                       class="w-full h-6 progress progress-primary" :value="item.isUsedCount"
                       :max="item.count"
@@ -299,7 +315,8 @@ onMounted(() => {
             <div class="tooltip tooltip-right" :data-tip="t('button.resetPrizeStatus')">
               <div
                 class="flex items-center justify-center w-6 h-8 rounded-r-lg cursor-pointer prize-option bg-slate-500/50"
-                @click="emit('resetPrizeStatus')"
+                :class="{'opacity-50 cursor-not-allowed': currentLotteryStatus === 2 || currentLotteryStatus === 3}"
+                @click="canSwitchPrize && emit('resetPrizeStatus')"
               >
                 <svg-icon name="reset" class="w-full h-full" />
               </div>
@@ -315,7 +332,8 @@ onMounted(() => {
             <div class="tooltip tooltip-right" :data-tip="t('tooltip.addActivity')">
               <div
                 class="flex items-center w-6 h-8 rounded-r-lg cursor-pointer prize-option bg-slate-500/50"
-                @click="addTemporaryPrize"
+                :class="{'opacity-50 cursor-not-allowed': currentLotteryStatus === 2 || currentLotteryStatus === 3}"
+                @click="canSwitchPrize && addTemporaryPrize"
               >
                 <svg-icon name="add" class="w-full h-full" />
               </div>
@@ -326,12 +344,13 @@ onMounted(() => {
     </div>
 
     <transition name="prize-operate" :appear="true">
-      <div v-show="!prizeShow" class="flex flex-col gap-3">
+      <div v-show="!prizeShow" class="flex flex-col gap-3 absolute left-0 bottom-0 translate-y-3/4 z-20">
         <!-- 重置抽奖状态按钮 - 收起状态 -->
         <div class="tooltip tooltip-right" :data-tip="t('button.resetPrizeStatus')">
           <div
             class="flex items-center justify-center w-6 h-8 rounded-r-lg cursor-pointer prize-option bg-slate-500/50"
-            @click="emit('resetPrizeStatus')"
+            :class="{'opacity-50 cursor-not-allowed': currentLotteryStatus === 2 || currentLotteryStatus === 3}"
+            @click="canSwitchPrize && emit('resetPrizeStatus')"
           >
             <svg-icon name="reset" class="w-full h-full" />
           </div>
@@ -372,13 +391,19 @@ onMounted(() => {
 
 .current-prize {
     position: relative;
-    display: block;
-    overflow: visible;
     border-radius: 20px;
-    /* 使用柔和的单一层边框效果 */
+    /* 只保留柔和的光圈效果 */
     box-shadow: 
         0 0 0 2px rgba(79, 207, 112, 0.8),
-        0 0 8px rgba(255, 255, 255, 0.3);
+        0 0 12px rgba(79, 207, 112, 0.5);
+    transition: box-shadow 0.3s ease;
+}
+
+/* 抽奖中状态，保持与普通选中状态一致的光圈效果 */
+.lottery-in-progress {
+    box-shadow: 
+        0 0 0 2px rgba(79, 207, 112, 0.8),
+        0 0 16px rgba(79, 207, 112, 0.7);
     transition: box-shadow 0.3s ease;
 }
 

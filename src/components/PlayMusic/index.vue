@@ -16,7 +16,9 @@ const audio = ref(new Audio())
 const settingRef = ref()
 // const audio = ref(new Audio())
 const globalConfig = useStore().globalConfig
+const system = useStore().system
 const { getMusicList: localMusicList, getCurrentMusic: currentMusic } = storeToRefs(globalConfig)
+const { getLotteryStatus: lotteryStatus } = storeToRefs(system)
 // const localMusicListValue = ref(localMusicList)
 
 async function play(item: any) {
@@ -70,10 +72,10 @@ function onPlayEnd() {
 }
 
 function enterConfig() {
-  router.push('/log-lottery/config')
+  window.open('/log-lottery/config', '_blank')
 }
 function enterHome() {
-  router.push('/log-lottery')
+  window.open('/log-lottery/', '_blank')
 }
 
 onMounted(() => {
@@ -107,6 +109,8 @@ watch(currentMusic, (val: any) => {
     <div v-else class="tooltip tooltip-left" :data-tip="t('tooltip.settingConfiguration')">
       <div
         class="flex items-center justify-center w-10 h-10 p-0 m-0 cursor-pointer setting-container bg-slate-500/50 rounded-l-xl hover:bg-slate-500/80 hover:text-blue-400/90"
+        :class="{ 'opacity-50 cursor-not-allowed': lotteryStatus === 2 || lotteryStatus === 3 }"
+        :style="{ pointerEvents: lotteryStatus === 2 || lotteryStatus === 3 ? 'none' : 'auto' }"
         @click="enterConfig"
       >
         <svg-icon name="setting" />

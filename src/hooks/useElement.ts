@@ -1,7 +1,7 @@
 import type { IPersonConfig } from '@/types/storeType'
 import { rgba } from '@/utils/color'
 
-export function useElementStyle(element: any, person: IPersonConfig, index: number, patternList: number[], patternColor: string, cardColor: string, cardSize: { width: number, height: number }, textSize: number, mod: 'default' | 'lucky' | 'sphere' = 'default', type: 'add' | 'change' = 'add') {
+export function useElementStyle(element: any, person: IPersonConfig, index: number, patternList: number[], patternColor: string, cardColor: string, cardSize: { width: number, height: number }, textSize: number, textColor: string, mod: 'default' | 'lucky' | 'sphere' = 'default', type: 'add' | 'change' = 'add') {
   if (patternList.includes(index + 1) && mod === 'default') {
     element.style.backgroundColor = rgba(patternColor, Math.random() * 0.2 + 0.8)
   }
@@ -15,6 +15,7 @@ export function useElementStyle(element: any, person: IPersonConfig, index: numb
   element.style.boxShadow = `0 0 12px ${rgba(cardColor, 0.5)}`
   element.style.width = `${cardSize.width}px`
   element.style.height = `${cardSize.height}px`
+  element.style.color = textColor
   if (mod === 'lucky') {
     element.className = 'lucky-element-card'
   }

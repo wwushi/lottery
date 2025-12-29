@@ -11,15 +11,11 @@ export const usePrizeConfig = defineStore('prize', {
         temporaryPrize: {
           id: '',
           name: '',
+          prizeName: '',
           sort: 0,
           isAll: false,
           count: 1,
           isUsedCount: 0,
-          picture: {
-            id: '-1',
-            name: '',
-            url: '',
-          },
           separateCount: {
             enable: true,
             countList: [],
@@ -116,15 +112,11 @@ export const usePrizeConfig = defineStore('prize', {
       this.prizeConfig.temporaryPrize = {
         id: '',
         name: '',
+        prizeName: '',
         sort: 0,
         isAll: false,
         count: 1,
         isUsedCount: 0,
-        picture: {
-          id: '-1',
-          name: '',
-          url: '',
-        },
         separateCount: {
           enable: true,
           countList: [],
@@ -143,15 +135,11 @@ export const usePrizeConfig = defineStore('prize', {
         temporaryPrize: {
           id: '',
           name: '',
+          prizeName: '',
           sort: 0,
           isAll: false,
           count: 1,
           isUsedCount: 0,
-          picture: {
-            id: '-1',
-            name: '',
-            url: '',
-          },
           separateCount: {
             enable: true,
             countList: [],

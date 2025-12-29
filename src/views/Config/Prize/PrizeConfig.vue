@@ -3,38 +3,26 @@ import type { IPrizeConfig } from '@/types/storeType'
 import EditSeparateDialog from '@/components/NumberSeparate/EditSeparateDialog.vue'
 import i18n from '@/locales/i18n'
 import useStore from '@/store'
-import localforage from 'localforage'
 import { storeToRefs } from 'pinia'
-import { onMounted, ref, watch } from 'vue'
+import { ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
-const imageDbStore = localforage.createInstance({
-  name: 'imgStore',
-})
 const prizeConfig = useStore().prizeConfig
-const globalConfig = useStore().globalConfig
 const { getPrizeConfig: localPrizeList, getCurrentPrize: currentPrize } = storeToRefs(prizeConfig)
 
-const { getImageList: localImageList } = storeToRefs(globalConfig)
 const prizeList = ref(localPrizeList)
-const imgList = ref<any[]>([])
-
 const selectedPrize = ref<IPrizeConfig | null>()
 
 function addPrize() {
   const defaultPrizeCOnfig: IPrizeConfig = {
     id: new Date().getTime().toString(),
     name: i18n.global.t('data.prizeName'),
+    prizeName: i18n.global.t('data.prizeName'),
     sort: 0,
     isAll: false,
     count: 1,
     isUsedCount: 0,
-    picture: {
-      id: '',
-      name: '',
-      url: '',
-    },
     separateCount: {
       enable: false,
       countList: [],
@@ -68,22 +56,6 @@ function selectPrize(item: IPrizeConfig) {
 }
 
 function changePrizeStatus(item: IPrizeConfig) {
-  // if (item.isUsed == true) {
-  //     item.isUsedCount = 0;
-  //     if (item.separateCount && item.separateCount.countList.length) {
-  //         item.separateCount.countList.forEach((countItem: any) => {
-  //             countItem.isUsedCount = 0;
-  //         })
-  //     }
-  // }
-  // else {
-  //     item.isUsedCount = item.count;
-  //     if (item.separateCount && item.separateCount.countList.length) {
-  //         item.separateCount.countList.forEach((countItem: any) => {
-  //             countItem.isUsedCount = countItem.count;
-  //         })
-  //     }
-  // }
   item.isUsed ? item.isUsedCount = 0 : item.isUsedCount = item.count
   item.separateCount.countList = []
   item.isUsed = !item.isUsed
@@ -108,18 +80,6 @@ function submitData(value: any) {
 }
 function resetDefault() {
   prizeConfig.resetDefault()
-}
-
-async function getImageDbStore() {
-  const keys = await imageDbStore.keys()
-  if (keys.length > 0) {
-    imageDbStore.iterate((value, key) => {
-      imgList.value.push({
-        key,
-        value,
-      })
-    })
-  }
 }
 
 function sort(item: IPrizeConfig, isUp: number) {
@@ -147,9 +107,6 @@ function resetAllPrizeStatus() {
   // 同时重置人员中奖状态
   useStore().personConfig.resetAlreadyPerson()
 }
-onMounted(() => {
-  getImageDbStore()
-})
 watch(() => prizeList.value, (val: IPrizeConfig[]) => {
   prizeConfig.setPrizeConfig(val)
 }, { deep: true })
@@ -211,6 +168,15 @@ watch(() => prizeList.value, (val: IPrizeConfig[]) => {
         </label>
         <label class="w-1/2 max-w-xs mb-10 form-control">
           <div class="label">
+            <span class="label-text">{{ t('table.prizeName') }}</span>
+          </div>
+          <input
+            v-model="item.prizeName" type="text" :placeholder="t('placeHolder.name')"
+            class="w-full max-w-xs input-sm input input-bordered"
+          >
+        </label>
+        <label class="w-1/2 max-w-xs mb-10 form-control">
+          <div class="label">
             <span class="label-text">{{ t('table.fullParticipation') }}</span>
           </div>
           <input
@@ -238,17 +204,6 @@ watch(() => prizeList.value, (val: IPrizeConfig[]) => {
             type="checkbox" :checked="item.isUsed" class="mt-2 border-solid checkbox checkbox-secondary border-1"
             @change="changePrizeStatus(item)"
           >
-        </label>
-        <label class="w-full max-w-xs mb-10 form-control">
-          <div class="label">
-            <span class="label-text">{{ t('table.image') }}</span>
-          </div>
-          <select v-model="item.picture" class="w-full max-w-xs select select-warning select-sm">
-            <option v-if="item.picture.id" :value="{ id: '', name: '', url: '' }">❌</option>
-            <option disabled selected>{{ t('table.selectPicture') }}</option>
-            <option v-for="picItem in localImageList" :key="picItem.id" :value="picItem">{{ picItem.name }}
-            </option>
-          </select>
         </label>
         <label v-if="item.separateCount" class="w-full max-w-xs mb-10 form-control">
           <div class="label">

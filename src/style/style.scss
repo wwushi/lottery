@@ -45,18 +45,6 @@
         bottom: 15px;
         z-index: 2;
     }
-
-    .card-avatar{
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        z-index: 1;
-        width: 140px !important;
-        height: 120px !important;
-        object-fit: cover;
-    }
 }
 
 .lucky-element-card {
@@ -112,17 +100,5 @@
         text-align: center;
         z-index: 2;
         bottom: 15px;
-    }
-
-    .card-avatar{
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        z-index: 1;
-        width: 280px !important;
-        height: 240px !important;
-        object-fit: cover;
     }
 }

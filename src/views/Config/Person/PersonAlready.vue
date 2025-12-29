@@ -7,6 +7,7 @@ import useStore from '@/store'
 import { storeToRefs } from 'pinia'
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import * as XLSX from 'xlsx'
 
 const { t } = useI18n()
 const personConfig = useStore().personConfig
@@ -28,6 +29,44 @@ function handleMoveNotPerson(row: IPersonConfig) {
 // 一键将所有已中奖人员移入未中奖名单
 function resetAllWinner() {
   personConfig.resetAlreadyPerson()
+}
+
+// 导出中奖人员列表
+function exportResult() {
+  // 准备导出数据
+  const exportData = isDetail.value ? alreadyPersonDetail.value : alreadyPersonList.value
+  
+  if (exportData.length === 0) {
+    return
+  }
+  
+  // 深拷贝数据，避免修改原数据
+  const data = JSON.parse(JSON.stringify(exportData))
+  
+  // 处理数据格式
+  data.forEach((item: any) => {
+    // 将数组类型的奖品名称转换为字符串
+    if (Array.isArray(item.prizeName)) {
+      item.prizeName = item.prizeName.join(', ')
+    }
+    
+    // 将数组类型的获奖时间转换为字符串
+    if (Array.isArray(item.prizeTime)) {
+      item.prizeTime = item.prizeTime.join(', ')
+    }
+    
+    // 删除不需要导出的字段
+    delete item.id
+    delete item.isWin
+    delete item.isShow
+    delete item.prizeId
+  })
+  
+  // 转换为Excel格式并导出
+  const worksheet = XLSX.utils.json_to_sheet(data)
+  const workbook = XLSX.utils.book_new()
+  XLSX.utils.book_append_sheet(workbook, worksheet, '中奖人员列表')
+  XLSX.writeFile(workbook, '中奖人员列表.xlsx')
 }
 
 const tableColumnsList = [
@@ -140,7 +179,10 @@ const tableColumnsDetail = [
           </label>
         </div>
       </div>
-      <div>
+      <div class="flex gap-2">
+        <button class="btn btn-secondary btn-sm" @click="exportResult">
+          {{ t('button.exportResult') }}
+        </button>
         <button class="btn btn-warning btn-sm" @click="resetAllWinner">
           {{ t('button.resetAllWinner') }}
         </button>

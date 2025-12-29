@@ -15,6 +15,10 @@ import router from '@/router'
 import { createPinia } from 'pinia'
 // pinia持久化
 import piniaPluginPersist from 'pinia-plugin-persist'
+// localStorage监听插件
+import { localStorageListener } from './plugins/localStorageListener'
+// localStorage重写插件，解决同一标签页内storage事件不触发的问题
+import { initLocalStorageOverride } from './plugins/localStorageOverride'
 
 const app = createApp(App)
 const pinia = createPinia()
@@ -22,4 +26,9 @@ pinia.use(piniaPluginPersist)
 
 app.config.globalProperties.$THREE = THREE // 挂载到原型
 app.component('svg-icon', svgIcon)
-app.use(router).use(VueDOMPurifyHTML).use(pinia).use(i18n).mount('#app')
+app.use(router).use(VueDOMPurifyHTML).use(pinia).use(i18n)
+
+// 挂载应用后初始化localStorage相关插件
+app.mount('#app')
+initLocalStorageOverride() // 重写localStorage方法，确保同一标签页内也能触发storage事件
+localStorageListener() // 监听localStorage变化

@@ -22,15 +22,11 @@ export interface Separate {
 export interface IPrizeConfig {
   id: number | string
   name: string
+  prizeName: string
   sort: number
   isAll: boolean
   count: number
   isUsedCount: number
-  picture: {
-    id: string | number
-    name: string
-    url: string
-  }
   separateCount: {
     enable: boolean
     countList: Separate[]

@@ -42,78 +42,59 @@ export const defaultPersonList = <IPersonConfig[]>
         { uid: 'U100156036', name: '芸娘', department: '江湖', avatar: 'https://img1.baidu.com/it/u=2165937980,813753762&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500', x: 2, y: 3, id: 35, isWin: false, createTime: 'Tue Jan 09 2024 23:20:07 GMT+0800 (China Standard Time)', updateTime: 'Tue Jan 09 2024 23:20:07 GMT+0800 (China Standard Time)', prizeName: [], prizeTime: [], prizeId: [] },
     ]
 
+// 导入本地音乐文件
+import bgmUrl from '@/Music/bgm.mp3'
+
 export const defaultMusicList = [
     {
-        id: `Geoff Knorr - China (The Industrial Era).ogg${new Date().getTime().toString()}`,
-        name: 'Geoff Knorr - China (The Industrial Era).ogg',
-        url: `${originUrl}/resource/audio/Geoff Knorr - China (The Industrial Era).ogg`,
+        id: `bgm.mp3${new Date().getTime().toString()}`,
+        name: 'bgm.mp3',
+        url: bgmUrl,
     },
-    {
-        id: `Geoff Knorr&Phill Boucher - China (The Atomic Era).ogg${new Date().getTime().toString()}`,
-        name: 'Geoff Knorr&Phill Boucher - China (The Atomic Era).ogg',
-        url: `${originUrl}/resource/audio/Geoff Knorr&Phill Boucher - China (The Atomic Era).ogg`,
-    },
-    {
-        id: `Radetzky March.mp3${new Date().getTime().toString()}`,
-        name: 'Radetzky March.mp3',
-        url: `${originUrl}/resource/audio/Radetzky March.mp3`,
-    },
-    {
-        id: `Shanghai.mp3${new Date().getTime().toString()}`,
-        name: 'Shanghai.mp3',
-        url: `${originUrl}/resource/audio/Shanghai.mp3`,
-    },
-    {
-        id: `Waltz No.2.mp3${new Date().getTime().toString()}`,
-        name: 'Waltz No.2.mp3',
-        url: `${originUrl}/resource/audio/Waltz No.2.mp3`,
-    },
-    {
-        id: `WildChinaTheme.mp3${new Date().getTime().toString()}`,
-        name: 'WildChinaTheme.mp3',
-        url: `${originUrl}/resource/audio/WildChinaTheme.mp3`,
-    },
-    {
-        id: `边程&房东的猫 - 美好事物-再遇少年.ogg${new Date().getTime().toString()}`,
-        name: '边程&房东的猫 - 美好事物-再遇少年.ogg',
-        url: `${originUrl}/resource/audio/边程&房东的猫 - 美好事物-再遇少年.ogg`,
-    },
-    {
-        id: `大乔小乔 - 相见难别亦难.ogg${new Date().getTime().toString()}`,
-        name: '大乔小乔 - 相见难别亦难.ogg',
-        url: `${originUrl}/resource/audio/大乔小乔 - 相见难别亦难.ogg`,
-    },
-    {
-        id: `你要跳舞吗-新裤子.mp3${new Date().getTime().toString()}`,
-        name: '你要跳舞吗-新裤子.mp3',
-        url: `${originUrl}/resource/audio/你要跳舞吗-新裤子.mp3`,
-    },
-    {
-        id: `生命-声音玩具.mp3${new Date().getTime().toString()}`,
-        name: '生命-声音玩具.mp3',
-        url: `${originUrl}/resource/audio/生命-声音玩具.mp3`,
-    },
-    {
-        id: `与非门 - Happy New Year.ogg${new Date().getTime().toString()}`,
-        name: '与非门 - Happy New Year.ogg',
-        url: `${originUrl}/resource/audio/与非门 - Happy New Year.ogg`,
-    },
-
 ]
 
-export const defaultPrizeList = <IPrizeConfig[]>[
-    {
-        id: '001',
-        name: '三等奖',
+export const defaultPrizeList = <IPrizeConfig[]>[    {
+        id: '005',
+        name: '五等奖',
+        prizeName: '五等奖奖品',
         sort: 1,
+        isAll: false,
+        count: 5,
+        isUsedCount: 0,
+        separateCount: {
+            enable: false,
+            countList: [],
+        },
+        desc: '五等奖',
+        isShow: true,
+        isUsed: false,
+        frequency: 1,
+    },
+    {
+        id: '004',
+        name: '四等奖',
+        prizeName: '四等奖奖品',
+        sort: 2,
+        isAll: false,
+        count: 4,
+        isUsedCount: 0,
+        separateCount: {
+            enable: false,
+            countList: [],
+        },
+        desc: '四等奖',
+        isShow: true,
+        isUsed: false,
+        frequency: 1,
+    },
+    {
+        id: '003',
+        name: '三等奖',
+        prizeName: '三等奖奖品',
+        sort: 3,
         isAll: false,
         count: 3,
         isUsedCount: 0,
-        picture: {
-            id: '2',
-            name: '三等奖',
-            url: `${originUrl}/resource/image/image3.png`,
-        },
         separateCount: {
             enable: true,
             countList: [],
@@ -126,15 +107,11 @@ export const defaultPrizeList = <IPrizeConfig[]>[
     {
         id: '002',
         name: '二等奖',
-        sort: 2,
+        prizeName: '二等奖奖品',
+        sort: 4,
         isAll: false,
         count: 2,
         isUsedCount: 0,
-        picture: {
-            id: '1',
-            name: '二等奖',
-            url: `${originUrl}/resource/image/image2.png`,
-        },
         separateCount: {
             enable: false,
             countList: [],
@@ -145,17 +122,13 @@ export const defaultPrizeList = <IPrizeConfig[]>[
         frequency: 1,
     },
     {
-        id: '003',
+        id: '001',
         name: '一等奖',
-        sort: 3,
+        prizeName: '一等奖奖品',
+        sort: 5,
         isAll: false,
         count: 1,
         isUsedCount: 0,
-        picture: {
-            id: '0',
-            name: '一等奖',
-            url: `${originUrl}/resource/image/image1.png`,
-        },
         separateCount: {
             enable: false,
             countList: [],
@@ -165,66 +138,25 @@ export const defaultPrizeList = <IPrizeConfig[]>[
         isUsed: false,
         frequency: 1,
     },
-    {
-        id: '004',
-        name: '超级大奖',
-        sort: 4,
-        isAll: false,
-        count: 1,
-        isUsedCount: 0,
-        picture: {
-            id: '3',
-            name: '超级奖',
-            url: `${originUrl}/resource/image/image4.png`,
-        },
-        separateCount: {
-            enable: false,
-            countList: [],
-        },
-        desc: '超级大奖',
-        isShow: true,
-        isUsed: false,
-        frequency: 1,
-    },
-    {
-        id: '005',
-        name: '特别奖',
-        sort: 5,
-        isAll: false,
-        count: 1,
-        isUsedCount: 0,
-        picture: {
-            id: '4',
-            name: '特别奖',
-            url: `${originUrl}/resource/image/image5.png`,
-        },
-        separateCount: {
-            enable: false,
-            countList: [],
-        },
-        desc: '特别奖',
-        isShow: true,
-        isUsed: false,
-        frequency: 1,
-    },
 ]
 export const defaultCurrentPrize = <IPrizeConfig>{
-    id: '001',
-    name: '三等奖',
+    id: '005',
+    name: '五等奖',
+    prizeName: '五等奖奖品',
     sort: 1,
     isAll: false,
-    count: 12,
+    count: 5,
     isUsedCount: 0,
     picture: {
-        id: '2',
-        name: '三等奖',
-        url: `${originUrl}/resource/image/image3.png`,
+        id: '4',
+        name: '五等奖',
+        url: `${originUrl}/resource/image/image5.png`,
     },
     separateCount: {
-        enable: true,
+        enable: false,
         countList: [],
     },
-    desc: '三等奖',
+    desc: '五等奖',
     isShow: true,
     isUsed: false,
     frequency: 1,
@@ -232,6 +164,7 @@ export const defaultCurrentPrize = <IPrizeConfig>{
 export const defaultTemporaryPrize = <IPrizeConfig>{
     id: '',
     name: '',
+    prizeName: '',
     sort: 0,
     isAll: false,
     count: 1,
@@ -269,13 +202,13 @@ export const defaultImageList = [
     },
     {
         id: '3',
-        name: '超级奖',
+        name: '四等奖',
         url: `${originUrl}/resource/image/image4.png`,
     },
     {
         id: '4',
-        name: '特别奖',
+        name: '五等奖',
         url: `${originUrl}/resource/image/image5.png`,
     },
 ]
-export const defaultPatternList = [21, 38, 55, 54, 53, 70, 87, 88, 89, 23, 40, 57, 74, 91, 92, 93, 76, 59, 42, 25, 24, 27, 28, 29, 46, 63, 62, 61, 78, 95, 96, 97, 20, 19, 31, 48, 65, 66, 67, 84, 101, 100, 99, 32, 33]
+export const defaultPatternList = [21, 38, 55, 54, 53, 70, 87, 88, 89, 23, 40, 57, 74, 91, 92, 93, 76, 59, 42, 25, 24, 27, 28, 29, 46, 63, 62, 61, 78, 95, 96, 97, 20, 19, 31, 48, 65, 66, 67, 82, 84, 101, 100, 99, 32, 33]

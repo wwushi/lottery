@@ -139,87 +139,89 @@ onMounted(() => {
 </script>
 
 <template>
-  <dialog id="my_modal_1" ref="resetDataDialog" class="border-none modal">
-    <div class="modal-box">
-      <h3 class="text-lg font-bold">
-        {{ t('dialog.titleTip') }}
-      </h3>
-      <p class="py-4">
-        {{ t('dialog.dialogResetWinner') }}
-      </p>
-      <div class="modal-action">
-        <form method="dialog" class="flex gap-3">
-          <!-- if there is a button in form, it will close the modal -->
-          <button class="btn" @click="resetDataDialog.close()">
-            {{ t('button.cancel') }}
-          </button>
-          <button class="btn" @click="resetData">
-            {{ t('button.confirm') }}
-          </button>
-        </form>
+  <div class="flex-1 mt-5">
+    <dialog id="my_modal_1" ref="resetDataDialog" class="border-none modal">
+      <div class="modal-box">
+        <h3 class="text-lg font-bold">
+          {{ t('dialog.titleTip') }}
+        </h3>
+        <p class="py-4">
+          {{ t('dialog.dialogResetWinner') }}
+        </p>
+        <div class="modal-action">
+          <form method="dialog" class="flex gap-3">
+            <!-- if there is a button in form, it will close the modal -->
+            <button class="btn" @click="resetDataDialog.close()">
+              {{ t('button.cancel') }}
+            </button>
+            <button class="btn" @click="resetData">
+              {{ t('button.confirm') }}
+            </button>
+          </form>
+        </div>
       </div>
-    </div>
-  </dialog>
-  <dialog id="my_modal_1" ref="delAllDataDialog" class="border-none modal">
-    <div class="modal-box">
-      <h3 class="text-lg font-bold">
-        {{ t('dialog.titleTip') }}
-      </h3>
-      <p class="py-4">
-        {{ t('dialog.dialogDelAllPerson') }}
-      </p>
-      <div class="modal-action">
-        <form method="dialog" class="flex gap-3">
-          <!-- if there is a button in form, it will close the modal -->
-          <button class="btn" @click="delAllDataDialog.close()">
-            {{ t('button.cancel') }}
-          </button>
-          <button class="btn" @click="deleteAll">
-            {{ t('button.confirm') }}
-          </button>
-        </form>
+    </dialog>
+    <dialog id="my_modal_1" ref="delAllDataDialog" class="border-none modal">
+      <div class="modal-box">
+        <h3 class="text-lg font-bold">
+          {{ t('dialog.titleTip') }}
+        </h3>
+        <p class="py-4">
+          {{ t('dialog.dialogDelAllPerson') }}
+        </p>
+        <div class="modal-action">
+          <form method="dialog" class="flex gap-3">
+            <!-- if there is a button in form, it will close the modal -->
+            <button class="btn" @click="delAllDataDialog.close()">
+              {{ t('button.cancel') }}
+            </button>
+            <button class="btn" @click="deleteAll">
+              {{ t('button.confirm') }}
+            </button>
+          </form>
+        </div>
       </div>
-    </div>
-  </dialog>
-  <div class="min-w-1000px">
-    <h2>{{ t('viewTitle.personManagement') }}</h2>
-    <div class="flex gap-3">
-      <button class="btn btn-error btn-sm" @click="delAllDataDialog.showModal()">
-        {{ t('button.allDelete') }}
-      </button>
-      <div class="tooltip tooltip-bottom" :data-tip="t('tooltip.downloadTemplateTip')">
-        <a
-          class="no-underline btn btn-secondary btn-sm" :download="t('data.xlsxName')" target="_blank"
-          :href="`/log-lottery/${t('data.xlsxName')}`"
-        >{{ t('button.downloadTemplate') }}</a>
-      </div>
-      <div class="">
-        <label for="explore">
+    </dialog>
+    <div class="min-w-1000px">
+      <h2>{{ t('viewTitle.personManagement') }}</h2>
+      <div class="flex gap-3">
+        <button class="btn btn-error btn-sm" @click="delAllDataDialog.showModal()">
+          {{ t('button.allDelete') }}
+        </button>
+        <div class="tooltip tooltip-bottom" :data-tip="t('tooltip.downloadTemplateTip')">
+          <a
+            class="no-underline btn btn-secondary btn-sm" :download="t('data.xlsxName')" target="_blank"
+            :href="`/log-lottery/${t('data.xlsxName')}`"
+          >{{ t('button.downloadTemplate') }}</a>
+        </div>
+        <div class="">
+          <label for="explore">
 
-          <div class="tooltip tooltip-bottom" :data-tip="t('tooltip.uploadExcelTip')">
-            <input
-              id="explore" type="file" class="" style="display: none" :accept="limitType"
-              @change="handleFileChange"
-            >
+            <div class="tooltip tooltip-bottom" :data-tip="t('tooltip.uploadExcelTip')">
+              <input
+                id="explore" type="file" class="" style="display: none" :accept="limitType"
+                @change="handleFileChange"
+              >
 
-            <span class="btn btn-primary btn-sm">{{ t('button.importData') }}</span>
-          </div>
-        </label>
+              <span class="btn btn-primary btn-sm">{{ t('button.importData') }}</span>
+            </div>
+          </label>
+        </div>
+        <button class="btn btn-error btn-sm" @click="resetDataDialog.showModal()">
+          {{ t('button.resetData') }}
+        </button>
+        <button class="btn btn-accent btn-sm" @click="exportData">
+          {{ t('button.exportResult') }}
+        </button>
+        <div>
+          <span>{{ t('table.luckyPeopleNumber') }}:</span>
+          <span>{{ alreadyPersonList.length }}</span>
+          <span>&nbsp;/&nbsp;</span>
+          <span>{{ allPersonList.length }}</span>
+        </div>
       </div>
-      <button class="btn btn-error btn-sm" @click="resetDataDialog.showModal()">
-        {{ t('button.resetData') }}
-      </button>
-      <button class="btn btn-accent btn-sm" @click="exportData">
-        {{ t('button.exportResult') }}
-      </button>
-      <div>
-        <span>{{ t('table.luckyPeopleNumber') }}:</span>
-        <span>{{ alreadyPersonList.length }}</span>
-        <span>&nbsp;/&nbsp;</span>
-        <span>{{ allPersonList.length }}</span>
-      </div>
+      <DaiysuiTable :table-columns="tableColumns" :data="allPersonList" />
     </div>
-    <DaiysuiTable :table-columns="tableColumns" :data="allPersonList" />
   </div>
 </template>
 
