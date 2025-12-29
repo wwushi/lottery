@@ -59,7 +59,6 @@ or
 npm run build:file
 ```
 
-> 项目思路来源于 <https://github.com/moshang-xc/lottery>
 
 ## Docker支持
 
