@@ -65,7 +65,7 @@ npm run build:file
 构建镜像
 
 ```bash
-docker build -t log-lottery .
+docker build -t log-lottery
 ```
 
 运行容器
