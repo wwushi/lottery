@@ -5,9 +5,9 @@ export function initLocalStorageOverride() {
   const originalClear = localStorage.clear;
 
   // 重写setItem
-  localStorage.setItem = function(key, value) {
+  localStorage.setItem = function(key: string, value: string) {
     const oldValue = localStorage.getItem(key);
-    originalSetItem.apply(this, arguments);
+    originalSetItem.call(this, key, value);
     
     // 触发标准storage事件
     window.dispatchEvent(new StorageEvent('storage', {
@@ -27,9 +27,9 @@ export function initLocalStorageOverride() {
   };
 
   // 重写removeItem
-  localStorage.removeItem = function(key) {
+  localStorage.removeItem = function(key: string) {
     const oldValue = localStorage.getItem(key);
-    originalRemoveItem.apply(this, arguments);
+    originalRemoveItem.call(this, key);
     
     // 触发标准storage事件
     window.dispatchEvent(new StorageEvent('storage', {
@@ -51,7 +51,7 @@ export function initLocalStorageOverride() {
   // 重写clear
   localStorage.clear = function() {
     // 保存所有键值对以便触发事件
-    const oldValues = {};
+    const oldValues: Record<string, string | null> = {};
     const storeKeys: string[] = [];
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
@@ -61,7 +61,7 @@ export function initLocalStorageOverride() {
       }
     }
     
-    originalClear.apply(this, arguments);
+    originalClear.call(this);
     
     // 对每个清除的键触发storage事件和自定义事件
     for (const key of storeKeys) {
