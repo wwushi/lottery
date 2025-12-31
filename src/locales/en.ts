@@ -111,7 +111,7 @@ export default {
     leftClick: 'Left Click to Slice',
     toHome: 'to Home',
     resetLayout: 'This item is time-consuming and performance intensive',
-    defaultLayout: 'The default pattern setting is valid for 17 columns, please set the number of other columns yourself',
+    defaultLayout: 'Default pattern setting, works for 21 columns',
     doneCount: 'Number of winners',
     edit: 'Edit',
     delete: 'Delete',

@@ -41,7 +41,7 @@ export function useElementStyle(element: any, person: IPersonConfig, index: numb
 
   element.children[1].style.fontSize = `${textSize}px`
   element.children[1].style.lineHeight = `1.2`
-  element.children[1].style.textShadow = `0 0 12px ${rgba(cardColor, 0.95)}`
+
   if (person.name) {
     // 检测中英文混合姓名，将中文名和英文名分行显示
     const name = person.name

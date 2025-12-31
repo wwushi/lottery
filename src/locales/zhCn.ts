@@ -111,7 +111,7 @@ export default {
     leftClick: '左键切割',
     toHome: '主页',
     resetLayout: '该项比较耗费时间和性能',
-    defaultLayout: '默认图案设置针对17列时有效，其他列数请自行设置',
+    defaultLayout: '默认图案设置，适用于21列',
     doneCount: '已抽取',
     edit: '编辑',
     delete: '删除',

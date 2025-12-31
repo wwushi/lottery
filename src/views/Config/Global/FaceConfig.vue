@@ -186,7 +186,7 @@ onMounted(() => {
       </div>
     </div>
   </dialog>
-  <div>
+  <div class="bg-[#282A36]">
     <h2>{{ t('viewTitle.globalSetting') }}</h2>
     <div class="mb-8">
       <button class="btn btn-sm btn-primary" @click="resetDataDialogRef.showModal()">

@@ -4,7 +4,7 @@ import { computed } from 'vue'
 const props = defineProps({
   rowCount: {
     type: Number,
-    default: 17,
+    default: 21,
   },
   cardColor: {
     type: String,
@@ -38,7 +38,7 @@ function updatePatternList(event: Event, item: number) {
 <template>
   <div class="w-full h-auto">
     <ul class="pattern-list" :style="{ gridTemplateColumns: `repeat(${data.rowCount},1fr)` }">
-      <li v-for="item in data.rowCount * 7" :key="item" class="w-5 h-5" :style="{ backgroundColor: data.patternList.includes(item) ? data.patternColor : data.cardColor }" @click.stop="(event) => updatePatternList(event, item)" />
+      <li v-for="item in data.rowCount * 9" :key="item" class="w-5 h-5" :style="{ backgroundColor: data.patternList.includes(item) ? data.patternColor : data.cardColor }" @click.stop="(event) => updatePatternList(event, item)" />
     </ul>
   </div>
 </template>
@@ -48,7 +48,7 @@ function updatePatternList(event: Event, item: number) {
         margin: 0;
         padding: 0;
         display:grid;
-        grid-template-rows:repeat(7,1fr);
+        grid-template-rows:repeat(9,1fr);
         grid-gap:1px;
         border:1px solid #000;
         li{

@@ -32,8 +32,8 @@ function skip(path: string) {
 </script>
 
 <template>
-  <div class="flex min-h-[calc(100%-280px)]">
-    <ul class="w-56 m-0 mr-3 min-w-56 menu bg-base-200 pt-14">
+  <div class="flex h-full bg-[#282A36]">
+    <ul class="w-56 m-0 mr-3 min-w-56 menu bg-[#282A36] pt-14">
       <li v-for="item in menuList" :key="item.name">
         <details v-if="item.children" open>
           <summary>{{ item.meta.title }}</summary>
@@ -65,7 +65,9 @@ function skip(path: string) {
         >{{ item.meta!.title }}</a>
       </li>
     </ul>
-    <router-view class="flex-1 mt-5" />
+    <div class="flex-1 mt-5 bg-[#282A36] overflow-y-auto">
+      <router-view class="h-full" />
+    </div>
   </div>
   <!-- <footer class="p-10 rounded footer footer-center bg-base-200 text-base-content">
     <nav class="grid grid-flow-col gap-4">
@@ -94,4 +96,19 @@ function skip(path: string) {
   </footer> -->
 </template>
 
-<style scoped></style>
+<style scoped>
+.menu details[open] > ul,
+.menu details[open] > ul > li > details[open] > ul {
+  background-color: #282A36;
+  color: white;
+}
+.menu a,
+.menu summary {
+  background-color: #282A36;
+  color: white;
+}
+/* 设置页面全局字体颜色 */
+#app .main-container-content {
+  color: white;
+}
+</style>

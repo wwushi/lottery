@@ -7,7 +7,7 @@ export const useGlobalConfig = defineStore('global', {
   state() {
     return {
       globalConfig: {
-          rowCount: 17,
+          rowCount: 21,
           isSHowPrizeList: false,
           isShowAvatar: false,
         topTitle: '',
@@ -239,7 +239,7 @@ export const useGlobalConfig = defineStore('global', {
     // 重置所有配置
     reset() {
       this.globalConfig = {
-        rowCount: 17,
+        rowCount: 21,
         isSHowPrizeList: false,
         isShowAvatar: false,
         topTitle: '',

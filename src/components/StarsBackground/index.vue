@@ -67,5 +67,7 @@ onUnmounted(() => {
 </template>
 
 <style lang='scss' scoped>
-
+.w-screen.h-screen.overflow-hidden {
+  background-color: #282A36;
+}
 </style>

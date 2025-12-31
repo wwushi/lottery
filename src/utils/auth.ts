@@ -1,3 +1,3 @@
 export function getToken() {
-  return window.localStorage.getItem('userToken')
+  return window.sessionStorage.getItem('userToken')
 }

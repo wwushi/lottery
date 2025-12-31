@@ -164,7 +164,7 @@ const tableColumnsDetail = [
 </script>
 
 <template>
-  <div class="overflow-y-auto">
+  <div class="overflow-y-auto bg-[#282A36]">
     <h2>{{ t('viewTitle.winnerManagement') }}</h2>
     <div class="flex items-center justify-start gap-10">
       <div>

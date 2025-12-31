@@ -10,3 +10,53 @@ $padding: 124px;
 // }
 
 /*end*/
+
+// 设置页面背景色和字体颜色
+.main-container-content > div {
+  background-color: #282A36;
+}
+
+// 设置页面字体颜色
+.main-container-content {
+  color: white;
+}
+
+// 设置表单元素字体颜色
+.main-container-content input,
+.main-container-content select,
+.main-container-content textarea,
+.main-container-content label,
+.main-container-content span,
+.main-container-content h2,
+.main-container-content h3,
+.main-container-content p,
+.main-container-content a {
+  color: white;
+}
+
+// 设置表格字体颜色
+.main-container-content table {
+  color: white;
+}
+
+// 设置帮助文本颜色
+.main-container-content .help,
+.main-container-content .help-text {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+// 设置页面按钮字体颜色
+.main-container-content button {
+  color: black !important;
+}
+
+// 设置页面提示文本颜色
+.main-container-content .tooltip .tooltip-text,
+.main-container-content .tooltip::after {
+  color: black !important;
+}
+
+// 设置页面表单标签文本颜色
+.main-container-content .label-text {
+  color: white !important;
+}

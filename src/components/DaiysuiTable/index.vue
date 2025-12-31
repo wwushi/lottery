@@ -145,4 +145,9 @@ const sortedData = computed(() => {
   </div>
 </template>
 
-<style lang='scss' scoped></style>
+<style lang='scss' scoped>
+tr.hover:hover {
+  background-color: #FE5555 !important;
+  color: white;
+}
+</style>

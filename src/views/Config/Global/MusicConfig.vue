@@ -73,7 +73,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div>
+  <div class="bg-[#282A36]">
     <div class="flex gap-3">
       <button class="btn btn-primary btn-sm" @click="resetMusic">
         {{ t('button.reset') }}

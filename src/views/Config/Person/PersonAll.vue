@@ -182,7 +182,7 @@ onMounted(() => {
         </div>
       </div>
     </dialog>
-    <div class="min-w-1000px">
+    <div class="min-w-1000px bg-[#282A36]">
       <h2>{{ t('viewTitle.personManagement') }}</h2>
       <div class="flex gap-3">
         <button class="btn btn-error btn-sm" @click="delAllDataDialog.showModal()">

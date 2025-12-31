@@ -45,6 +45,6 @@ export function themeChange(theme: string) {
   const html = document.querySelectorAll('html')
   if (html) {
     html[0].setAttribute('data-theme', theme)
-    localStorage.setItem('theme', theme)
+    sessionStorage.setItem('theme', theme)
   }
 }

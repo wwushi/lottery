@@ -69,8 +69,8 @@ function initTableData() {
   if (allPersonList.value.length <= 0) {
     return
   }
-  // 恢复原来的球体卡片数量，7行
-  const totalCount = rowCount.value * 7
+  // 恢复原来的球体卡片数量，9行
+  const totalCount = rowCount.value * 9
   const originPersonData = JSON.parse(JSON.stringify(allPersonList.value))
   const originPersonLength = originPersonData.length
   if (originPersonLength < totalCount) {
@@ -150,12 +150,23 @@ function init() {
 
   function createTableVertices() {
     const tableLen = tableData.value.length
+    // 计算卡片宽度和间距
+    const cardWidthWithGap = cardSize.value.width + 40
+    const cardHeightWithGap = cardSize.value.height + 20
+    
+    // 计算矩阵总宽度
+    const totalWidth = rowCount.value * cardWidthWithGap
+    
+    // 计算居中偏移量
+    const centerOffsetX = -totalWidth / 2 + cardWidthWithGap / 2 // 往右移半个卡片宽度
+    const centerOffsetY = 4.5 * cardHeightWithGap - 10 // 整体往下移10像素
 
     for (let i = 0; i < tableLen; i++) {
       const object = new Object3D()
 
-      object.position.x = tableData.value[i].x * (cardSize.value.width + 40) - rowCount.value * 90
-      object.position.y = -tableData.value[i].y * (cardSize.value.height + 20) + 1000
+      // 重新计算定位，确保矩阵在水平和垂直方向都居中
+      object.position.x = (tableData.value[i].x - 1) * cardWidthWithGap + centerOffsetX
+      object.position.y = -(tableData.value[i].y - 1) * cardHeightWithGap + centerOffsetY
       object.position.z = 0
 
       targets.table.push(object)
@@ -362,7 +373,7 @@ async function enterLottery() {
   }
   if (patternList.value.length) {
     for (let i = 0; i < patternList.value.length; i++) {
-      if (i < rowCount.value * 7) {
+      if (i < rowCount.value * 9) {
         objects.value[patternList.value[i] - 1].element.style.backgroundColor = rgba(cardColor.value, Math.random() * 0.5 + 0.25)
       }
     }
@@ -609,16 +620,30 @@ function randomBallData(mod: 'default' | 'lucky' | 'sphere' = 'default') {
     const indexLength = 4
     const cardRandomIndexArr: number[] = []
     const personRandomIndexArr: number[] = []
-    for (let i = 0; i < indexLength; i++) {
+    
+    // 确保每次至少更新1张自定义图案卡片
+    if (patternList.value.length > 0) {
+      const randomPatternIndex = Math.floor(Math.random() * patternList.value.length)
+      const patternCardIndex = patternList.value[randomPatternIndex] - 1
+      if (patternCardIndex < objects.value.length && !luckyCardList.value.includes(patternCardIndex)) {
+        cardRandomIndexArr.push(patternCardIndex)
+        const randomPersonIndex = Math.floor(Math.random() * allPersonList.value.length)
+        personRandomIndexArr.push(randomPersonIndex)
+      }
+    }
+    
+    // 继续随机更新其他卡片
+    for (let i = cardRandomIndexArr.length; i < indexLength; i++) {
       // 解决随机元素概率过于不均等问题
-      const randomCardIndex = Math.floor(Math.random() * (tableData.value.length - 1))
-      const randomPersonIndex = Math.floor(Math.random() * (allPersonList.value.length - 1))
+      const randomCardIndex = Math.floor(Math.random() * tableData.value.length)
+      const randomPersonIndex = Math.floor(Math.random() * allPersonList.value.length)
       if (luckyCardList.value.includes(randomCardIndex)) {
         continue
       }
       cardRandomIndexArr.push(randomCardIndex)
       personRandomIndexArr.push(randomPersonIndex)
     }
+    
     for (let i = 0; i < cardRandomIndexArr.length; i++) {
       if (!objects.value[cardRandomIndexArr[i]]) {
         continue
@@ -760,10 +785,10 @@ onUnmounted(() => {
   <!-- 显示参与抽奖人数 -->
   <div 
     v-if="allPersonList.length > 0" 
-    class="absolute top-4 left-4 z-10 font-mono px-4 py-2 bg-opacity-80 bg-black/60 backdrop-blur-sm rounded-lg shadow-lg border border-gray-700"
-    :style="{ fontSize: `${textSize * 0.6}px`, color: textColor }"
+    class="absolute top-4 left-4 z-10"
+    :style="{ fontSize: `${textSize * 0.6}px`, color: textColor, fontFamily: 'monospace', padding: '8px 16px', background: 'none', border: 'none', boxShadow: 'none' }"
   >
-    <span class="font-bold">{{ t('table.totalPersonCount') }}:</span> {{ allPersonList.length }}
+    <span>{{ t('table.totalPersonCount') }}:</span> {{ allPersonList.length }}
   </div>
   <div id="container" ref="containerRef" class="3dContainer">
     <!-- 选中菜单结构 start -->
