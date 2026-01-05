@@ -17,7 +17,7 @@ const prizeConfig = useStore().prizeConfig
 const globalConfig = useStore().globalConfig
 const system = useStore().system
 const { getPrizeConfig: localPrizeList, getCurrentPrize: currentPrize, getTemporaryPrize: temporaryPrize } = storeToRefs(prizeConfig)
-const { getIsShowPrizeList: isShowPrizeList } = storeToRefs(globalConfig)
+const { getIsShowPrizeList: isShowPrizeList, getPrizeBackgroundColor: prizeBackgroundColor } = storeToRefs(globalConfig)
 const { getIsMobile: isMobile } = storeToRefs(system)
 const prizeListRef = ref()
 const prizeListContainerRef = ref()
@@ -65,13 +65,18 @@ function deleteTemporaryPrize() {
   prizeConfig.setTemporaryPrize(temporaryPrize.value)
 }
 function submitTemporaryPrize() {
-  if (!temporaryPrize.value.name || !temporaryPrize.value.count) {
-    // eslint-disable-next-line no-alert
-    alert(i18n.global.t('error.completeInformation'))
-    return
+  // 简化验证逻辑，只在真正需要的时候进行验证
+  // 取消弹窗提示，避免影响用户体验
+  if (!temporaryPrize.value.name) {
+    temporaryPrize.value.name = '临时奖项'
+  }
+  if (!temporaryPrize.value.count || temporaryPrize.value.count <= 0) {
+    temporaryPrize.value.count = 1
   }
   temporaryPrize.value.isShow = true
-  temporaryPrize.value.id = new Date().getTime().toString()
+  temporaryPrize.value.id = 'temporary_' + new Date().getTime().toString() // 添加前缀，便于识别临时奖项
+  // 同时更新临时奖项和当前奖项，确保id一致
+  prizeConfig.setTemporaryPrize(temporaryPrize.value)
   prizeConfig.setCurrentPrize(temporaryPrize.value)
 }
 function selectPrize(item: IPrizeConfig) {
@@ -121,32 +126,34 @@ onMounted(() => {
 <template>
   <div class="flex items-center">
     <dialog id="my_modal_1" ref="temporaryPrizeRef" class="border-none modal">
-      <div class="modal-box">
-        <h3 class="text-lg font-bold">
+      <div class="modal-box" :style="{ backgroundColor: '#1a1a2e', color: 'white' }">
+        <h3 class="text-lg font-bold text-white">
           {{ t('dialog.titleTemporary') }}
         </h3>
         <div class="flex flex-col gap-3">
           <label class="flex w-full max-w-xs">
             <div class="label">
-              <span class="label-text">{{ t('table.name') }}:</span>
+              <span class="label-text text-white">{{ t('table.name') }}:</span>
             </div>
             <input
-              v-model="temporaryPrize.name" type="text" :placeholder="t('placeHolder.name')"
+              v-model="temporaryPrize.name" type="text" :placeholder="t('table.name')"
               class="max-w-xs input-sm input input-bordered"
+              :style="temporaryPrize.name ? { color: 'black' } : {}"
             >
           </label>
           <label class="flex w-full max-w-xs">
             <div class="label">
-              <span class="label-text">{{ t('table.prizeName') }}:</span>
+              <span class="label-text text-white">{{ t('table.prizeName') }}:</span>
             </div>
             <input
-              v-model="temporaryPrize.prizeName" type="text" :placeholder="t('placeHolder.name')"
+              v-model="temporaryPrize.prizeName" type="text" :placeholder="t('table.prizeName')"
               class="max-w-xs input-sm input input-bordered"
+              :style="temporaryPrize.prizeName ? { color: 'black' } : {}"
             >
           </label>
           <label class="flex w-full max-w-xs">
             <div class="label">
-              <span class="label-text">{{ t('table.fullParticipation') }}</span>
+              <span class="label-text text-white">{{ t('table.fullParticipation') }}</span>
             </div>
             <input
               type="checkbox" :checked="temporaryPrize.isAll"
@@ -156,16 +163,17 @@ onMounted(() => {
           </label>
           <label class="flex w-full max-w-xs">
             <div class="label">
-              <span class="label-text">{{ t('table.setLuckyNumber') }}</span>
+              <span class="label-text text-white">{{ t('table.setLuckyNumber') }}</span>
             </div>
             <input
               v-model="temporaryPrize.count" type="number" :placeholder="t('placeHolder.winnerCount')" class="max-w-xs input-sm input input-bordered"
               @change="changePersonCount"
+              :style="temporaryPrize.count ? { color: 'black' } : {}"
             >
           </label>
           <label class="flex w-full max-w-xs">
             <div class="label">
-              <span class="label-text">{{ t('table.luckyPeopleNumber') }}</span>
+              <span class="label-text text-white">{{ t('table.luckyPeopleNumber') }}</span>
             </div>
             <input
               v-model="temporaryPrize.isUsedCount" disabled type="number" :placeholder="t('placeHolder.winnerCount')"
@@ -174,7 +182,7 @@ onMounted(() => {
           </label>
           <label v-if="temporaryPrize.separateCount" class="flex w-full max-w-xs">
             <div class="label">
-              <span class="label-text">{{ t('table.onceNumber') }}</span>
+              <span class="label-text text-white">{{ t('table.onceNumber') }}</span>
             </div>
             <div class="flex justify-start h-full" @click="selectPrize(temporaryPrize)">
               <ul
@@ -193,7 +201,7 @@ onMounted(() => {
                       class="absolute left-0 z-50 h-full bg-blue-300/80"
                       :style="`width:${se.isUsedCount * 100 / se.count}%`"
                     />
-                    <span>{{ se.count }}</span>
+                    <span class="text-white">{{ se.count }}</span>
                   </div>
                 </li>
               </ul>
@@ -220,7 +228,7 @@ onMounted(() => {
     <div ref="prizeListContainerRef">
       <div v-if="temporaryPrize.isShow" class="h-20 w-72">
         <div 
-          class="relative flex flex-row items-center justify-between w-full h-full shadow-xl card bg-base-100 cursor-pointer"
+          class="relative flex flex-row items-center justify-between w-full h-full shadow-xl card cursor-pointer" :style="{ backgroundColor: prizeBackgroundColor, color: 'white' }"
           :class="{
                       'current-prize': currentPrize.id === temporaryPrize.id,
                       'opacity-50 cursor-not-allowed': temporaryPrize.isUsed || currentLotteryStatus === 2 || currentLotteryStatus === 3
@@ -236,7 +244,7 @@ onMounted(() => {
               <h2 class="p-0 m-0 overflow-hidden w-28 card-title whitespace-nowrap text-ellipsis">
                 {{temporaryPrize.name }}
               </h2>
-              <p class="p-0 m-0 text-sm text-gray-500">
+              <p class="p-0 m-0 text-sm">
                 {{ temporaryPrize.prizeName }}
               </p>
             </div>
@@ -254,12 +262,12 @@ onMounted(() => {
           </div>
           <div class="flex flex-col gap-1 mr-2">
             <div class="tooltip tooltip-left" :data-tip="t('tooltip.edit')">
-              <div class="cursor-pointer hover:text-blue-400" :class="{'opacity-50 cursor-not-allowed': currentLotteryStatus === 2 || currentLotteryStatus === 3}" @click="canSwitchPrize && addTemporaryPrize">
+              <div class="cursor-pointer hover:text-blue-400" :class="{'opacity-50 cursor-not-allowed': currentLotteryStatus === 2 || currentLotteryStatus === 3}" @click="canSwitchPrize ? addTemporaryPrize() : null">
                 <svg-icon name="edit" />
               </div>
             </div>
             <div class="tooltip tooltip-left" :data-tip="t('tooltip.delete')">
-              <div class="cursor-pointer hover:text-blue-400" :class="{'opacity-50 cursor-not-allowed': currentLotteryStatus === 2 || currentLotteryStatus === 3}" @click="canSwitchPrize && deleteTemporaryPrize">
+              <div class="cursor-pointer hover:text-blue-400" :class="{'opacity-50 cursor-not-allowed': currentLotteryStatus === 2 || currentLotteryStatus === 3}" @click="canSwitchPrize ? deleteTemporaryPrize() : null">
                 <svg-icon name="delete" />
               </div>
             </div>
@@ -272,7 +280,7 @@ onMounted(() => {
             <li v-for="item in localPrizeList" :key="item.id">
               <div
                   v-if="item.isShow"
-                  class="relative flex flex-row items-center justify-between w-64 h-20 shadow-xl card bg-base-100 cursor-pointer"
+                  class="relative flex flex-row items-center justify-between w-64 h-20 shadow-xl card cursor-pointer" :style="{ backgroundColor: prizeBackgroundColor, color: 'white' }"
                   :class="{
                     'current-prize': currentPrize.id === item.id,
                     'lottery-in-progress': currentPrize.id === item.id && currentLotteryStatus === 2,
@@ -291,9 +299,9 @@ onMounted(() => {
                     >
                       {{ item.name }}
                     </h2>
-                    <p class="p-0 m-0 text-sm text-gray-500">
-                      {{ item.prizeName }}
-                    </p>
+                    <p class="p-0 m-0 text-sm">
+                    {{ item.prizeName }}
+                  </p>
                   </div>
                   <div class="relative w-3/4 mt-[-4px]">
                     <p class="absolute inset-0 z-40 p-0 m-0 flex items-center justify-center font-medium text-white">
@@ -316,7 +324,7 @@ onMounted(() => {
               <div
                 class="flex items-center justify-center w-6 h-8 rounded-r-lg cursor-pointer prize-option bg-slate-500/50"
                 :class="{'opacity-50 cursor-not-allowed': currentLotteryStatus === 2 || currentLotteryStatus === 3}"
-                @click="canSwitchPrize && emit('resetPrizeStatus')"
+                @click="canSwitchPrize ? emit('resetPrizeStatus') : null"
               >
                 <svg-icon name="reset" class="w-full h-full" />
               </div>
@@ -333,7 +341,7 @@ onMounted(() => {
               <div
                 class="flex items-center w-6 h-8 rounded-r-lg cursor-pointer prize-option bg-slate-500/50"
                 :class="{'opacity-50 cursor-not-allowed': currentLotteryStatus === 2 || currentLotteryStatus === 3}"
-                @click="canSwitchPrize && addTemporaryPrize"
+                @click="canSwitchPrize ? addTemporaryPrize() : null"
               >
                 <svg-icon name="add" class="w-full h-full" />
               </div>

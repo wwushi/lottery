@@ -68,19 +68,51 @@ export const usePrizeConfig = defineStore('prize', {
     },
     // 更新奖项数据
     updatePrizeConfig(prizeConfigItem: IPrizeConfig) {
+      // 检查是否是临时奖项 - 通过id前缀识别，更可靠
+      const isTemporaryPrize = prizeConfigItem.id && prizeConfigItem.id.startsWith('temporary_')
       const prizeListLength = this.prizeConfig.prizeList.length
-      if (prizeConfigItem.isUsed && prizeListLength) {
-        for (let i = 0; i < prizeListLength; i++) {
-          if (!this.prizeConfig.prizeList[i].isUsed) {
-            this.setCurrentPrize(this.prizeConfig.prizeList[i])
-            break
+      
+      if (prizeConfigItem.isUsed) {
+        let foundNextPrize = false
+        let nextPrize: IPrizeConfig | null = null
+        
+        // 尝试从prizeList中找到下一个未使用的奖项
+        if (prizeListLength > 0) {
+          for (let i = 0; i < prizeListLength; i++) {
+            if (!this.prizeConfig.prizeList[i].isUsed) {
+              nextPrize = this.prizeConfig.prizeList[i]
+              foundNextPrize = true
+              break
+            }
+          }
+        }
+        
+        // 处理临时奖项
+        if (isTemporaryPrize) {
+          // 1. 立即隐藏临时奖项，避免继续显示
+          this.prizeConfig.temporaryPrize.isShow = false
+          
+          // 2. 如果找到下一个奖项，设置为当前奖项
+          if (foundNextPrize && nextPrize) {
+            this.setCurrentPrize(nextPrize)
+          }
+          
+          // 3. 重置临时奖项数据，确保它不会继续影响当前抽奖流程
+          this.resetTemporaryPrize()
+        }
+        // 处理普通奖项
+        else {
+          // 如果找到下一个奖项，设置为当前奖项
+          if (foundNextPrize && nextPrize) {
+            this.setCurrentPrize(nextPrize)
+            // 重置临时奖项，因为我们已经回到了正常奖项流程
+            this.resetTemporaryPrize()
           }
         }
       }
       else {
         return
       }
-      this.resetTemporaryPrize()
     },
     // 删除全部奖项
     deleteAllPrizeConfig() {
@@ -175,8 +207,8 @@ export const usePrizeConfig = defineStore('prize', {
     enabled: true,
     strategies: [
       {
-        // 如果要存储在localStorage中
-        storage: localStorage,
+        // 如果要存储在sessionStorage中
+        storage: sessionStorage,
         key: 'prizeConfig',
       },
     ],
