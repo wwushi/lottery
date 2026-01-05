@@ -16,13 +16,12 @@ const { t } = useI18n()
 const prizeConfig = useStore().prizeConfig
 const globalConfig = useStore().globalConfig
 const system = useStore().system
-const { getPrizeConfig: localPrizeList, getCurrentPrize: currentPrize, getTemporaryPrize: temporaryPrize } = storeToRefs(prizeConfig)
+const { getPrizeConfig: localPrizeList, getCurrentPrize: currentPrize } = storeToRefs(prizeConfig)
 const { getIsShowPrizeList: isShowPrizeList, getPrizeBackgroundColor: prizeBackgroundColor } = storeToRefs(globalConfig)
 const { getIsMobile: isMobile } = storeToRefs(system)
 const prizeListRef = ref()
 const prizeListContainerRef = ref()
 
-const temporaryPrizeRef = ref()
 const selectedPrize = ref<IPrizeConfig | null>()
 
 // 添加抽奖状态支持，接收来自父组件的抽奖状态
@@ -56,29 +55,6 @@ function getPrizeListHeight() {
 }
 const prizeShow = ref(structuredClone(isShowPrizeList.value))
 
-function addTemporaryPrize() {
-  temporaryPrizeRef.value.showModal()
-}
-
-function deleteTemporaryPrize() {
-  temporaryPrize.value.isShow = false
-  prizeConfig.setTemporaryPrize(temporaryPrize.value)
-}
-function submitTemporaryPrize() {
-  // 简化验证逻辑，只在真正需要的时候进行验证
-  // 取消弹窗提示，避免影响用户体验
-  if (!temporaryPrize.value.name) {
-    temporaryPrize.value.name = '临时奖项'
-  }
-  if (!temporaryPrize.value.count || temporaryPrize.value.count <= 0) {
-    temporaryPrize.value.count = 1
-  }
-  temporaryPrize.value.isShow = true
-  temporaryPrize.value.id = 'temporary_' + new Date().getTime().toString() // 添加前缀，便于识别临时奖项
-  // 同时更新临时奖项和当前奖项，确保id一致
-  prizeConfig.setTemporaryPrize(temporaryPrize.value)
-  prizeConfig.setCurrentPrize(temporaryPrize.value)
-}
 function selectPrize(item: IPrizeConfig) {
   selectedPrize.value = item
   selectedPrize.value.isUsedCount = 0
@@ -102,9 +78,6 @@ function submitData(value: any) {
   selectedPrize.value!.separateCount.countList = value
   selectedPrize.value = null
 }
-function changePersonCount() {
-  temporaryPrize.value.separateCount.countList = []
-}
 function setCurrentPrize() {
   for (let i = 0; i < localPrizeList.value.length; i++) {
     if (localPrizeList.value[i].isUsedCount < localPrizeList.value[i].count) {
@@ -125,157 +98,13 @@ onMounted(() => {
 
 <template>
   <div class="flex items-center">
-    <dialog id="my_modal_1" ref="temporaryPrizeRef" class="border-none modal">
-      <div class="modal-box" :style="{ backgroundColor: '#1a1a2e', color: 'white' }">
-        <h3 class="text-lg font-bold text-white">
-          {{ t('dialog.titleTemporary') }}
-        </h3>
-        <div class="flex flex-col gap-3">
-          <label class="flex w-full max-w-xs">
-            <div class="label">
-              <span class="label-text text-white">{{ t('table.name') }}:</span>
-            </div>
-            <input
-              v-model="temporaryPrize.name" type="text" :placeholder="t('table.name')"
-              class="max-w-xs input-sm input input-bordered"
-              :style="temporaryPrize.name ? { color: 'black' } : {}"
-            >
-          </label>
-          <label class="flex w-full max-w-xs">
-            <div class="label">
-              <span class="label-text text-white">{{ t('table.prizeName') }}:</span>
-            </div>
-            <input
-              v-model="temporaryPrize.prizeName" type="text" :placeholder="t('table.prizeName')"
-              class="max-w-xs input-sm input input-bordered"
-              :style="temporaryPrize.prizeName ? { color: 'black' } : {}"
-            >
-          </label>
-          <label class="flex w-full max-w-xs">
-            <div class="label">
-              <span class="label-text text-white">{{ t('table.fullParticipation') }}</span>
-            </div>
-            <input
-              type="checkbox" :checked="temporaryPrize.isAll"
-              class="mt-2 border-solid checkbox checkbox-secondary border-1"
-              @change="temporaryPrize.isAll = !temporaryPrize.isAll"
-            >
-          </label>
-          <label class="flex w-full max-w-xs">
-            <div class="label">
-              <span class="label-text text-white">{{ t('table.setLuckyNumber') }}</span>
-            </div>
-            <input
-              v-model="temporaryPrize.count" type="number" :placeholder="t('placeHolder.winnerCount')" class="max-w-xs input-sm input input-bordered"
-              @change="changePersonCount"
-              :style="temporaryPrize.count ? { color: 'black' } : {}"
-            >
-          </label>
-          <label class="flex w-full max-w-xs">
-            <div class="label">
-              <span class="label-text text-white">{{ t('table.luckyPeopleNumber') }}</span>
-            </div>
-            <input
-              v-model="temporaryPrize.isUsedCount" disabled type="number" :placeholder="t('placeHolder.winnerCount')"
-              class="max-w-xs input-sm input input-bordered"
-            >
-          </label>
-          <label v-if="temporaryPrize.separateCount" class="flex w-full max-w-xs">
-            <div class="label">
-              <span class="label-text text-white">{{ t('table.onceNumber') }}</span>
-            </div>
-            <div class="flex justify-start h-full" @click="selectPrize(temporaryPrize)">
-              <ul
-                v-if="temporaryPrize.separateCount.countList.length"
-                class="flex flex-wrap w-full h-full gap-1 p-0 pt-1 m-0 cursor-pointer"
-              >
-                <li
-                  v-for="se in temporaryPrize.separateCount.countList"
-                  :key="se.id" class="relative flex items-center justify-center w-8 h-8 bg-slate-600/60 separated"
-                >
-                  <div
-                    class="flex items-center justify-center w-full h-full tooltip"
-                    :data-tip="`${t('tooltip.doneCount') + se.isUsedCount}/${se.count}`"
-                  >
-                    <div
-                      class="absolute left-0 z-50 h-full bg-blue-300/80"
-                      :style="`width:${se.isUsedCount * 100 / se.count}%`"
-                    />
-                    <span class="text-white">{{ se.count }}</span>
-                  </div>
-                </li>
-              </ul>
-              <button v-else class="btn btn-secondary btn-xs">{{ t('button.setting') }}</button>
-            </div>
-          </label>
-        </div>
-        <div class="modal-action">
-          <form method="dialog" class="flex gap-3">
-            <button class="btn btn-sm" @click="submitTemporaryPrize">
-              {{ t('button.confirm') }}
-            </button>
-            <button class="btn btn-sm">
-              {{ t('button.cancel') }}
-            </button>
-          </form>
-        </div>
-      </div>
-    </dialog>
     <EditSeparateDialog
       :total-number="selectedPrize?.count" :separated-number="selectedPrize?.separateCount.countList"
       @submit-data="submitData"
     />
     <div ref="prizeListContainerRef">
-      <div v-if="temporaryPrize.isShow" class="h-20 w-72">
-        <div 
-          class="relative flex flex-row items-center justify-between w-full h-full shadow-xl card cursor-pointer" :style="{ backgroundColor: prizeBackgroundColor, color: 'white' }"
-          :class="{
-                      'current-prize': currentPrize.id === temporaryPrize.id,
-                      'opacity-50 cursor-not-allowed': temporaryPrize.isUsed || currentLotteryStatus === 2 || currentLotteryStatus === 3
-                    }"
-          @click="!temporaryPrize.isUsed && canSwitchPrize && emit('selectPrize', temporaryPrize)"
-        >
-          <div
-            v-if="temporaryPrize.isUsed"
-            class="absolute z-50 w-full h-full bg-gray-800/70 item-mask rounded-xl"
-          />
-          <div class="flex flex-col justify-center items-center p-0 text-center card-body">
-            <div class="flex flex-col justify-center items-center tooltip tooltip-left" :data-tip="temporaryPrize.prizeName || temporaryPrize.name">
-              <h2 class="p-0 m-0 overflow-hidden w-28 card-title whitespace-nowrap text-ellipsis">
-                {{temporaryPrize.name }}
-              </h2>
-              <p class="p-0 m-0 text-sm">
-                {{ temporaryPrize.prizeName }}
-              </p>
-            </div>
-            <div class="relative w-3/4 mt-[-4px]">
-              <p class="absolute inset-0 z-40 p-0 m-0 flex items-center justify-center font-medium text-white">
-                {{ temporaryPrize.isUsedCount }}/{{
-                  temporaryPrize.count }}
-              </p>
-              <progress
-                class="w-full h-6 progress progress-primary" :value="temporaryPrize.isUsedCount"
-                :max="temporaryPrize.count"
-              />
-            </div>
-            <!-- <p class="p-0 m-0">{{ item.isUsedCount }}/{{ item.count }}</p> -->
-          </div>
-          <div class="flex flex-col gap-1 mr-2">
-            <div class="tooltip tooltip-left" :data-tip="t('tooltip.edit')">
-              <div class="cursor-pointer hover:text-blue-400" :class="{'opacity-50 cursor-not-allowed': currentLotteryStatus === 2 || currentLotteryStatus === 3}" @click="canSwitchPrize ? addTemporaryPrize() : null">
-                <svg-icon name="edit" />
-              </div>
-            </div>
-            <div class="tooltip tooltip-left" :data-tip="t('tooltip.delete')">
-              <div class="cursor-pointer hover:text-blue-400" :class="{'opacity-50 cursor-not-allowed': currentLotteryStatus === 2 || currentLotteryStatus === 3}" @click="canSwitchPrize ? deleteTemporaryPrize() : null">
-                <svg-icon name="delete" />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
       <transition name="prize-list" :appear="true">
-        <div v-if="prizeShow && !isMobile && !temporaryPrize.isShow" class="flex items-center">
+        <div v-if="prizeShow && !isMobile" class="flex items-center">
           <ul ref="prizeListRef" class="flex flex-col gap-3 p-2 rounded-xl bg-slate-500/50">
             <li v-for="item in localPrizeList" :key="item.id">
               <div
@@ -335,15 +164,6 @@ onMounted(() => {
                 @click="prizeShow = !prizeShow"
               >
                 <svg-icon name="arrow_left" class="w-full h-full" />
-              </div>
-            </div>
-            <div class="tooltip tooltip-right" :data-tip="t('tooltip.addActivity')">
-              <div
-                class="flex items-center w-6 h-8 rounded-r-lg cursor-pointer prize-option bg-slate-500/50"
-                :class="{'opacity-50 cursor-not-allowed': currentLotteryStatus === 2 || currentLotteryStatus === 3}"
-                @click="canSwitchPrize ? addTemporaryPrize() : null"
-              >
-                <svg-icon name="add" class="w-full h-full" />
               </div>
             </div>
           </div>

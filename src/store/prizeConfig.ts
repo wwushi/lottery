@@ -8,23 +8,6 @@ export const usePrizeConfig = defineStore('prize', {
       prizeConfig: {
         prizeList: defaultPrizeList,
         currentPrize: defaultCurrentPrize,
-        temporaryPrize: {
-          id: '',
-          name: '',
-          prizeName: '',
-          sort: 0,
-          isAll: false,
-          count: 1,
-          isUsedCount: 0,
-          separateCount: {
-            enable: true,
-            countList: [],
-          },
-          desc: '',
-          isShow: false,
-          isUsed: false,
-          frequency: 1,
-        } as IPrizeConfig,
       },
     }
   },
@@ -47,10 +30,6 @@ export const usePrizeConfig = defineStore('prize', {
     getCurrentPrize(state) {
       return state.prizeConfig.currentPrize
     },
-    // 获取临时的奖项
-    getTemporaryPrize(state) {
-      return state.prizeConfig.temporaryPrize
-    },
 
   },
   actions: {
@@ -68,50 +47,21 @@ export const usePrizeConfig = defineStore('prize', {
     },
     // 更新奖项数据
     updatePrizeConfig(prizeConfigItem: IPrizeConfig) {
-      // 检查是否是临时奖项 - 通过id前缀识别，更可靠
-      const isTemporaryPrize = prizeConfigItem.id && prizeConfigItem.id.startsWith('temporary_')
       const prizeListLength = this.prizeConfig.prizeList.length
       
+      // 处理普通奖项
       if (prizeConfigItem.isUsed) {
         let foundNextPrize = false
-        let nextPrize: IPrizeConfig | null = null
-        
-        // 尝试从prizeList中找到下一个未使用的奖项
+        // 尝试找到下一个未使用的普通奖项
         if (prizeListLength > 0) {
           for (let i = 0; i < prizeListLength; i++) {
             if (!this.prizeConfig.prizeList[i].isUsed) {
-              nextPrize = this.prizeConfig.prizeList[i]
+              this.prizeConfig.currentPrize = this.prizeConfig.prizeList[i]
               foundNextPrize = true
               break
             }
           }
         }
-        
-        // 处理临时奖项
-        if (isTemporaryPrize) {
-          // 1. 立即隐藏临时奖项，避免继续显示
-          this.prizeConfig.temporaryPrize.isShow = false
-          
-          // 2. 如果找到下一个奖项，设置为当前奖项
-          if (foundNextPrize && nextPrize) {
-            this.setCurrentPrize(nextPrize)
-          }
-          
-          // 3. 重置临时奖项数据，确保它不会继续影响当前抽奖流程
-          this.resetTemporaryPrize()
-        }
-        // 处理普通奖项
-        else {
-          // 如果找到下一个奖项，设置为当前奖项
-          if (foundNextPrize && nextPrize) {
-            this.setCurrentPrize(nextPrize)
-            // 重置临时奖项，因为我们已经回到了正常奖项流程
-            this.resetTemporaryPrize()
-          }
-        }
-      }
-      else {
-        return
       }
     },
     // 删除全部奖项
@@ -122,70 +72,16 @@ export const usePrizeConfig = defineStore('prize', {
     setCurrentPrize(prizeConfigItem: IPrizeConfig) {
       this.prizeConfig.currentPrize = prizeConfigItem
     },
-    // 设置临时奖项
-    setTemporaryPrize(prizeItem: IPrizeConfig) {
-      if (prizeItem.isShow === false) {
-        for (let i = 0; i < this.prizeConfig.prizeList.length; i++) {
-          if (this.prizeConfig.prizeList[i].isUsed === false) {
-            this.setCurrentPrize(this.prizeConfig.prizeList[i])
-
-            break
-          }
-        }
-        this.resetTemporaryPrize()
-
-        return
-      }
-
-      this.prizeConfig.temporaryPrize = prizeItem
-    },
-    // 重置临时奖项
-    resetTemporaryPrize() {
-      this.prizeConfig.temporaryPrize = {
-        id: '',
-        name: '',
-        prizeName: '',
-        sort: 0,
-        isAll: false,
-        count: 1,
-        isUsedCount: 0,
-        separateCount: {
-          enable: true,
-          countList: [],
-        },
-        desc: '',
-        isShow: false,
-        isUsed: false,
-        frequency: 1,
-      } as IPrizeConfig
-    },
     // 重置所有配置
     resetDefault() {
       this.prizeConfig = {
         prizeList: defaultPrizeList,
         currentPrize: defaultCurrentPrize,
-        temporaryPrize: {
-          id: '',
-          name: '',
-          prizeName: '',
-          sort: 0,
-          isAll: false,
-          count: 1,
-          isUsedCount: 0,
-          separateCount: {
-            enable: true,
-            countList: [],
-          },
-          desc: '',
-          isShow: false,
-          isUsed: false,
-          frequency: 1,
-        } as IPrizeConfig,
       }
     },
     // 重置所有奖项到未开始状态
     resetAllPrizeStatus() {
-      // 重置所有奖项状态
+      // 重置所有普通奖项状态
       this.prizeConfig.prizeList.forEach(prize => {
         prize.isUsed = false
         prize.isUsedCount = 0
@@ -196,7 +92,7 @@ export const usePrizeConfig = defineStore('prize', {
           })
         }
       })
-      // 设置第一个未使用的奖项为当前奖项
+      // 设置第一个未使用的普通奖项为当前奖项
       const firstUnusedPrize = this.prizeConfig.prizeList.find(prize => !prize.isUsed)
       if (firstUnusedPrize) {
         this.setCurrentPrize(firstUnusedPrize)

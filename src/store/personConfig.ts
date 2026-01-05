@@ -150,8 +150,8 @@ export const usePersonConfig = defineStore('person', {
     enabled: true,
     strategies: [
       {
-        // 如果要存储在localStorage中
-        storage: localStorage,
+        // 如果要存储在sessionStorage中
+        storage: sessionStorage,
         key: 'personConfig',
       },
     ],

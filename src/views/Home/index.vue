@@ -31,7 +31,7 @@ const system = useStore().system
 const { getAllPersonList: allPersonList, getAlreadyPersonList: alreadyPersonList, getNotPersonList: notPersonList, getNotThisPrizePersonList: notThisPrizePersonList,
 } = storeToRefs(personConfig)
 const { getCurrentPrize: currentPrize, getPrizeConfig: prizeList } = storeToRefs(prizeConfig)
-const { getTopTitle: topTitle, getCardColor: cardColor, getPatterColor: patternColor, getPatternList: patternList, getTextColor: textColor, getLuckyColor: luckyColor, getCardSize: cardSize, getTextSize: textSize, getRowCount: rowCount, getBackground: homeBackground, getIsShowAvatar: isShowAvatar } = storeToRefs(globalConfig)
+const { getTopTitle: topTitle, getCardColor: cardColor, getPatterColor: patternColor, getPatternList: patternList, getTextColor: textColor, getLuckyColor: luckyColor, getCardSize: cardSize, getTextSize: textSize, getRowCount: rowCount, getBackground: homeBackground, getIsShowAvatar: isShowAvatar, getIsShowParticipantCount: isShowParticipantCount } = storeToRefs(globalConfig)
 const tableData = ref<any[]>([])
 const currentStatus = ref(0) // 0为初始状态， 1为抽奖准备状态，2为抽奖中状态，3为抽奖结束状态
 const ballRotationY = ref(0)
@@ -511,6 +511,7 @@ async function continueLottery() {
     return
   }
 
+  // 处理普通奖项
   const customCount = currentPrize.value.separateCount
   if (customCount && customCount.enable && customCount.countList.length > 0) {
     for (let i = 0; i < customCount.countList.length; i++) {
@@ -784,7 +785,7 @@ onUnmounted(() => {
   </div>
   <!-- 显示参与抽奖人数 -->
   <div 
-    v-if="allPersonList.length > 0" 
+    v-if="allPersonList.length > 0 && isShowParticipantCount" 
     class="absolute top-4 left-4 z-10"
     :style="{ fontSize: `${textSize * 0.6}px`, color: textColor, fontFamily: 'monospace', padding: '8px 16px', background: 'none', border: 'none', boxShadow: 'none' }"
   >

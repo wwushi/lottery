@@ -10,6 +10,7 @@ export const useGlobalConfig = defineStore('global', {
           rowCount: 21,
           isSHowPrizeList: false,
           isShowAvatar: false,
+          isShowParticipantCount: false, // 控制是否显示参与人数
         topTitle: '',
         language: browserLanguage,
         theme: {
@@ -24,6 +25,7 @@ export const useGlobalConfig = defineStore('global', {
             patternColor: '#e6cb00',
             patternList: defaultPatternList as number[],
             background: {}, // 背景颜色或图片
+            prizeBackgroundColor: '#1a1a2e', // 奖项卡片背景色
           },
         musicList: defaultMusicList as IMusic[],
         imageList: defaultImageList as IImage[],
@@ -109,6 +111,14 @@ export const useGlobalConfig = defineStore('global', {
     // 获取是否显示头像
     getIsShowAvatar(state) {
       return state.globalConfig.isShowAvatar
+    },
+    // 获取是否显示参与人数
+    getIsShowParticipantCount(state) {
+      return state.globalConfig.isShowParticipantCount
+    },
+    // 获取奖项背景色
+    getPrizeBackgroundColor(state) {
+      return state.globalConfig.theme.prizeBackgroundColor
     },
   },
   actions: {
@@ -236,12 +246,21 @@ export const useGlobalConfig = defineStore('global', {
     setIsShowAvatar(isShowAvatar: boolean) {
       this.globalConfig.isShowAvatar = isShowAvatar
     },
+    // 设置是否显示参与人数
+    setIsShowParticipantCount(isShowParticipantCount: boolean) {
+      this.globalConfig.isShowParticipantCount = isShowParticipantCount
+    },
+    // 设置奖项背景色
+    setPrizeBackgroundColor(color: string) {
+      this.globalConfig.theme.prizeBackgroundColor = color
+    },
     // 重置所有配置
     reset() {
       this.globalConfig = {
         rowCount: 21,
         isSHowPrizeList: false,
         isShowAvatar: false,
+        isShowParticipantCount: false, // 默认不显示参与人数
         topTitle: '',
         language: browserLanguage,
         theme: {
@@ -256,10 +275,11 @@ export const useGlobalConfig = defineStore('global', {
           patternColor: '#e6cb00',
           patternList: defaultPatternList as number[],
           background: {}, // 背景颜色或图片
+          prizeBackgroundColor: '#1a1a2e', // 奖项卡片背景色
         },
         musicList: defaultMusicList as IMusic[],
         imageList: defaultImageList as IImage[],
-      }
+      },
       this.currentMusic = {
         item: defaultMusicList[0],
         paused: true,
@@ -270,8 +290,8 @@ export const useGlobalConfig = defineStore('global', {
     enabled: true,
     strategies: [
       {
-        // 如果要存储在localStorage中
-        storage: localStorage,
+        // 如果要存储在sessionStorage中
+        storage: sessionStorage,
         key: 'globalConfig',
         paths: ['globalConfig'],
       },

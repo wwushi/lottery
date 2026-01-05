@@ -72,10 +72,10 @@ function onPlayEnd() {
 }
 
 function enterConfig() {
-  window.open('/log-lottery/config', '_blank')
+  router.push('/log-lottery/config')
 }
 function enterHome() {
-  window.open('/log-lottery/', '_blank')
+  router.push('/log-lottery/')
 }
 
 onMounted(() => {

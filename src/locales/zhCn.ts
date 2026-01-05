@@ -49,8 +49,8 @@ export default {
   table: {
     // person configuration
     number: '编号',
-    name: '姓名',
-    prizeName: '名称',
+    name: '奖项名称',
+    prizeName: '奖品名称',
     department: '部门',
     identity: '身份',
     isLucky: '是否中奖',

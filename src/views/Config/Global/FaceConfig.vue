@@ -17,7 +17,7 @@ const { t } = useI18n()
 const globalConfig = useStore().globalConfig
 const personConfig = useStore().personConfig
 const prizeConfig = useStore().prizeConfig
-const { getTopTitle: topTitle, getTheme: localTheme, getPatterColor: patternColor, getPatternList: patternList, getCardColor: cardColor, getLuckyColor: luckyCardColor, getTextColor: textColor, getCardSize: cardSize, getTextSize: textSize, getRowCount: rowCount, getIsShowPrizeList: isShowPrizeList, getLanguage: userLanguage, getBackground: backgroundImage, getImageList: imageList, getIsShowAvatar: isShowAvatar
+const { getTopTitle: topTitle, getTheme: localTheme, getPatterColor: patternColor, getPatternList: patternList, getCardColor: cardColor, getLuckyColor: luckyCardColor, getTextColor: textColor, getCardSize: cardSize, getTextSize: textSize, getRowCount: rowCount, getIsShowPrizeList: isShowPrizeList, getLanguage: userLanguage, getBackground: backgroundImage, getImageList: imageList, getIsShowAvatar: isShowAvatar, getIsShowParticipantCount: isShowParticipantCount, getPrizeBackgroundColor: prizeBackgroundColor
 } = storeToRefs(globalConfig)
 const { getAlreadyPersonList: alreadyPersonList, getNotPersonList: notPersonList } = storeToRefs(personConfig)
 const colorPickerRef = ref()
@@ -37,7 +37,9 @@ const rowCountValue = ref(structuredClone(rowCount.value))
 const languageValue = ref(structuredClone(userLanguage.value))
 const isShowPrizeListValue = ref(structuredClone(isShowPrizeList.value))
 const isShowAvatarValue = ref(structuredClone(isShowAvatar.value))
+const isShowParticipantCountValue = ref(structuredClone(isShowParticipantCount.value))
 const patternColorValue = ref(structuredClone(patternColor.value))
+const prizeBackgroundColorValue = ref(structuredClone(prizeBackgroundColor.value))
 const themeList = ref(Object.keys(daisyuiThemes))
 const daisyuiThemeList = ref<ThemeDaType>(daisyuiThemes)
 const backgroundImageValue = ref(backgroundImage.value)
@@ -140,6 +142,10 @@ watch(luckyCardColorValue, (val: string) => {
 watch(patternColorValue, (val: string) => {
   globalConfig.setPatterColor(val)
 })
+
+watch(prizeBackgroundColorValue, (val: string) => {
+  globalConfig.setPrizeBackgroundColor(val)
+})
 watch(textColorValue, (val: string) => {
   globalConfig.setTextColor(val)
 }, { deep: true })
@@ -159,6 +165,10 @@ watch(languageValue, (val: string) => {
 })
 watch(isShowAvatarValue, () => {
     globalConfig.setIsShowAvatar(isShowAvatarValue.value)
+})
+
+watch(isShowParticipantCountValue, () => {
+    globalConfig.setIsShowParticipantCount(isShowParticipantCountValue.value)
 })
 onMounted(() => {
 })
@@ -187,7 +197,7 @@ onMounted(() => {
     </div>
   </dialog>
   <div class="bg-[#282A36]">
-    <h2>{{ t('viewTitle.globalSetting') }}</h2>
+    <h2 class="text-white">{{ t('viewTitle.globalSetting') }}</h2>
     <div class="mb-8">
       <button class="btn btn-sm btn-primary" @click="resetDataDialogRef.showModal()">
         {{ t('button.resetAllData') }}
@@ -196,22 +206,24 @@ onMounted(() => {
     <label class="flex flex-row items-center w-full gap-24 mb-10 form-control">
       <div class="">
         <div class="label">
-          <span class="label-text">{{ t('table.title') }}</span>
+          <span class="label-text text-white">{{ t('table.title') }}</span>
         </div>
         <input
           v-model="topTitleValue" type="text" :placeholder="t('placeHolder.enterTitle')"
           class="w-full max-w-xs input input-bordered"
+          :style="topTitleValue ? { color: 'black' } : {}"
         >
       </div>
     </label>
     <label class="flex flex-row items-center w-full gap-24 mb-10 form-control">
       <div class="">
         <div class="label">
-          <span class="label-text">{{ t('table.columnNumber') }}</span>
+          <span class="label-text text-white">{{ t('table.columnNumber') }}</span>
         </div>
         <input
           v-model="formData.rowCount" type="number" placeholder="Type here"
           class="w-full max-w-xs input input-bordered"
+          :style="formData.rowCount ? { color: 'black' } : {}"
         >
         <div class="help">
           <span v-if="formErr.rowCount" class="text-sm text-red-400 help-text">
@@ -230,29 +242,29 @@ onMounted(() => {
     </label>
     <label class="w-full max-w-xs form-control">
       <div class="label">
-        <span class="label-text">{{ t('table.language') }}</span>
+        <span class="label-text text-white">{{ t('table.language') }}</span>
       </div>
-      <select v-model="languageValue" data-choose-theme class="w-full max-w-xs border-solid select border-1">
+      <select v-model="languageValue" data-choose-theme class="w-full max-w-xs border-solid select border-1 bg-white text-black">
         <option disabled selected>{{ t('table.language') }}</option>
         <option v-for="item in languageList" :key="item.key" :value="item.key">{{ item.name }}</option>
       </select>
     </label>
     <label class="w-full max-w-xs form-control">
       <div class="label">
-        <span class="label-text">{{ t('table.theme') }}</span>
+        <span class="label-text text-white">{{ t('table.theme') }}</span>
       </div>
-      <select v-model="themeValue" data-choose-theme class="w-full max-w-xs border-solid select border-1">
+      <select v-model="themeValue" data-choose-theme class="w-full max-w-xs border-solid select border-1 bg-white text-black">
         <option disabled selected>{{ t('table.theme') }}</option>
         <option v-for="(item, index) in themeList" :key="index" :value="item">{{ item }}</option>
       </select>
     </label>
     <label class="w-full max-w-xs form-control">
       <div class="label">
-        <span class="label-text">{{ t('table.backgroundImage') }}</span>
+        <span class="label-text text-white">{{ t('table.backgroundImage') }}</span>
       </div>
       <select
         v-model="backgroundImageValue" data-choose-theme
-        class="w-full max-w-xs border-solid select border-1"
+        class="w-full max-w-xs border-solid select border-1 bg-white text-black"
       >
         <option disabled selected>{{ t('table.backgroundImage') }}</option>
         <option
@@ -263,62 +275,65 @@ onMounted(() => {
     </label>
     <label class="w-full max-w-xs form-control">
       <div class="label">
-        <span class="label-text">{{ t('table.cardColor') }}</span>
-      </div>
+          <span class="label-text text-white">{{ t('table.cardColor') }}</span>
+        </div>
       <ColorPicker ref="colorPickerRef" v-model="cardColorValue" v-model:pure-color="cardColorValue" />
     </label>
     <label class="w-full max-w-xs form-control">
       <div class="label">
-        <span class="label-text">{{ t('table.winnerColor') }}</span>
-      </div>
+          <span class="label-text text-white">{{ t('table.winnerColor') }}</span>
+        </div>
       <ColorPicker ref="colorPickerRef" v-model="luckyCardColorValue" v-model:pure-color="luckyCardColorValue" />
     </label>
 
     <label class="w-full max-w-xs form-control">
       <div class="label">
-        <span class="label-text">{{ t('table.textColor') }}</span>
-      </div>
+          <span class="label-text text-white">{{ t('table.textColor') }}</span>
+        </div>
       <ColorPicker ref="colorPickerRef" v-model="textColorValue" v-model:pure-color="textColorValue" />
     </label>
     <label class="flex flex-row w-full max-w-xs gap-10 mb-10 form-control">
       <div>
         <div class="label">
-          <span class="label-text">{{ t('table.cardWidth') }}</span>
+          <span class="label-text text-white">{{ t('table.cardWidth') }}</span>
         </div>
         <input
           v-model="cardSizeValue.width" type="number" placeholder="Type here"
           class="w-full max-w-xs input input-bordered"
+          :style="cardSizeValue.width ? { color: 'black' } : {}"
         >
       </div>
       <div>
         <div class="label">
-          <span class="label-text">{{ t('table.cardHeight') }}</span>
+          <span class="label-text text-white">{{ t('table.cardHeight') }}</span>
         </div>
         <input
           v-model="cardSizeValue.height" type="number" placeholder="Type here"
           class="w-full max-w-xs input input-bordered"
+          :style="cardSizeValue.height ? { color: 'black' } : {}"
         >
       </div>
     </label>
     <label class="w-full max-w-xs mb-10 form-control">
       <div class="label">
-        <span class="label-text">{{ t('table.textSize') }}</span>
-      </div>
+          <span class="label-text text-white">{{ t('table.textSize') }}</span>
+        </div>
       <input
-        v-model="textSizeValue" type="number" placeholder="Type here"
-        class="w-full max-w-xs input input-bordered"
-      >
+          v-model="textSizeValue" type="number" placeholder="Type here"
+          class="w-full max-w-xs input input-bordered"
+          :style="textSizeValue ? { color: 'black' } : {}"
+        >
     </label>
     <label class="w-full max-w-xs form-control">
       <div class="label">
-        <span class="label-text">{{ t('table.highlightColor') }}</span>
-      </div>
+          <span class="label-text text-white">{{ t('table.highlightColor') }}</span>
+        </div>
       <ColorPicker ref="colorPickerRef" v-model="patternColorValue" v-model:pure-color="patternColorValue" />
     </label>
     <label class="flex flex-row items-center w-full gap-24 mb-0 form-control">
       <div>
         <div class="label">
-          <span class="label-text">{{ t('table.patternSetting') }}</span>
+          <span class="label-text text-white">{{ t('table.patternSetting') }}</span>
         </div>
         <div class="h-auto">
           <PatternSetting
@@ -341,8 +356,8 @@ onMounted(() => {
 
     <label class="w-full max-w-xs mb-10 form-control">
       <div class="label">
-        <span class="label-text">{{ t('table.alwaysDisplay') }}</span>
-      </div>
+            <span class="label-text text-white">{{ t('table.alwaysDisplay') }}</span>
+          </div>
       <input
         type="checkbox" :checked="isShowPrizeListValue" class="mt-2 border-solid checkbox checkbox-secondary border-1"
         @change="isShowPrizeListValue = !isShowPrizeListValue"
@@ -356,6 +371,25 @@ onMounted(() => {
         </div>
         <input type="checkbox" :checked="isShowAvatarValue" @change="isShowAvatarValue = !isShowAvatarValue"
           class="mt-2 border-solid checkbox checkbox-secondary border-1" />
+    </label>
+
+    <!-- 显示参与人数开关 -->
+    <label class="w-full max-w-xs mb-10 form-control">
+        <div class="label">
+            <span class="label-text text-white">{{ t('table.totalPersonCount') }}</span>
+          </div>
+        <input
+          type="checkbox" :checked="isShowParticipantCountValue" class="mt-2 border-solid checkbox checkbox-secondary border-1"
+          @change="isShowParticipantCountValue = !isShowParticipantCountValue"
+        >
+    </label>
+
+    <!-- 奖项卡片背景色设置 -->
+    <label class="w-full max-w-xs mb-10 form-control">
+        <div class="label">
+            <span class="label-text">奖项卡片背景色</span>
+        </div>
+        <ColorPicker ref="colorPickerRef" v-model="prizeBackgroundColorValue" v-model:pure-color="prizeBackgroundColorValue" />
     </label>
   </div>
 </template>

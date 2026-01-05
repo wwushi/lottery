@@ -159,11 +159,12 @@ watch(() => prizeList.value, (val: IPrizeConfig[]) => {
         </label>
         <label class="w-1/2 max-w-xs mb-10 form-control">
           <div class="label">
-            <span class="label-text">{{ t('table.prizeName') }}</span>
+            <span class="label-text">{{ t('table.name') }}</span>
           </div>
           <input
             v-model="item.name" type="text" :placeholder="t('placeHolder.name')"
             class="w-full max-w-xs input-sm input input-bordered"
+            :style="item.name ? { color: 'black' } : {}"
           >
         </label>
         <label class="w-1/2 max-w-xs mb-10 form-control">
@@ -173,6 +174,7 @@ watch(() => prizeList.value, (val: IPrizeConfig[]) => {
           <input
             v-model="item.prizeName" type="text" :placeholder="t('placeHolder.name')"
             class="w-full max-w-xs input-sm input input-bordered"
+            :style="item.prizeName ? { color: 'black' } : {}"
           >
         </label>
         <label class="w-1/2 max-w-xs mb-10 form-control">
@@ -191,6 +193,7 @@ watch(() => prizeList.value, (val: IPrizeConfig[]) => {
           <input
             v-model="item.count" type="number" :placeholder="t('placeHolder.winnerCount')" class="w-full max-w-xs p-0 m-0 input-sm input input-bordered"
             @change="changePrizePerson(item)"
+            :style="item.count ? { color: 'black' } : {}"
           >
           <div class="tooltip tooltip-bottom" :data-tip="`${t('table.isDone') + item.isUsedCount}/${item.count}`">
             <progress class="w-full progress" :value="item.isUsedCount" :max="item.count" />
