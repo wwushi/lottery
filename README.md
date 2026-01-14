@@ -22,7 +22,7 @@
 安装依赖
 
 ```bash
-pnpm i
+pnpm install
 or
 npm install
 ```
@@ -50,6 +50,20 @@ pnpm build:file
 or
 npm run build:file
 ```
+
+
+## 项目结构
+
+src目录下基本放置了所有的代码文件，其中最主要的是
+
+- `views`：存放页面代码
+- `components`：存放组件代码
+- `utils`：存放工具函数
+- `layout`: 页面布局
+- `locales`: 国际化
+- `router`: 路由配置
+- `store`: 状态管理
+- `types`: 类型定义
 
 
 ## Docker支持
