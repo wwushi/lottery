@@ -17,46 +17,73 @@ const imageDbStore = localforage.createInstance({
   name: 'imgStore',
 })
 async function handleFileChange(e: Event) {
-  const isImage = /image*/.test(((e.target as HTMLInputElement).files as FileList)[0].type)
-  if (!isImage) {
-    imgUploadToast.value = 3
-
-    return
+  const files = (e.target as HTMLInputElement).files as FileList;
+  let allSuccess = true;
+  
+  // 遍历所有选择的文件
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+    const isImage = /image*/.test(file.type);
+    
+    if (!isImage) {
+      imgUploadToast.value = 3;
+      allSuccess = false;
+      continue;
+    }
+    
+    try {
+      const { dataUrl, fileName } = await readFileData(file);
+      await imageDbStore.setItem(`${new Date().getTime().toString()}+${fileName}`, dataUrl);
+    } catch (error) {
+      imgUploadToast.value = 2;
+      allSuccess = false;
+    }
   }
-  const { dataUrl, fileName } = await readFileData(((e.target as HTMLInputElement).files as FileList)[0])
-  imageDbStore.setItem(`${new Date().getTime().toString()}+${fileName}`, dataUrl)
-    .then(() => {
-      imgUploadToast.value = 1
-      getImageDbStore()
-    })
-    .catch(() => {
-      imgUploadToast.value = 2
-    })
+  
+  if (allSuccess) {
+    imgUploadToast.value = 1;
+  }
+  
+  // 重新加载图片列表
+  getImageDbStore();
 }
 
 async function getImageDbStore() {
-  const keys = await imageDbStore.keys()
+  // 1. 先清空现有的图片列表
+  globalConfig.clearImageList();
+  
+  // 2. 从localforage中读取所有图片
+  const keys = await imageDbStore.keys();
+  
   if (keys.length > 0) {
-    imageDbStore.iterate((value, key) => {
+    // 3. 遍历所有图片键，逐个添加到store中
+    for (const key of keys) {
+      // 从key中提取原始文件名（去掉时间戳前缀）
+      const fileName = key.split('+').slice(1).join('+');
+      
       globalConfig.addImage({
         id: key,
-        name: key,
+        name: fileName,
         url: 'Storage',
-      })
-    })
+      });
+    }
   }
 }
 
 function removeImage(item: IImage) {
   if (item.url === 'Storage') {
     imageDbStore.removeItem(item.id).then(() => {
-      globalConfig.removeImage(item.id)
+      globalConfig.removeImage(item.id);
+      // 重新加载图片列表，确保数据一致性
+      getImageDbStore();
     })
+  } else {
+    globalConfig.removeImage(item.id);
   }
-  globalConfig.removeImage(item.id)
 }
 onMounted(() => {
-  // getImageDbStore()
+  // 页面加载时从localforage中读取已有的图片
+  getImageDbStore();
 })
 watch(() => imgUploadToast.value, (val) => {
   if (val !== 0) {
@@ -86,6 +113,7 @@ watch(() => imgUploadToast.value, (val) => {
         <input
           id="explore" type="file" class="" style="display: none" :accept="limitType"
           @change="handleFileChange"
+          multiple
         >
         <span class="btn btn-primary btn-sm">{{ t('button.upload') }}</span>
       </label>

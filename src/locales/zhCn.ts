@@ -27,6 +27,7 @@ export default {
     close: '关闭',
     noInfoAndImport: '暂无人员信息，前往导入',
     useDefault: '使用默认数据',
+    clearImage: '清除图片',
   },
   sidebar: {
     personConfiguration: '人员配置',
@@ -133,6 +134,10 @@ export default {
     enterTitle: '输入标题',
     name: '名称',
     winnerCount: '中奖人数',
+    selectImage: '选择图片',
+  },
+  tip: {
+    uploadImageFirst: '请先到全局配置-图片管理上传图片',
   },
   data: {
     yes: '是',

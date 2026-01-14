@@ -1,18 +1,60 @@
 <script setup lang='ts'>
 import type { IPrizeConfig } from '@/types/storeType'
 import EditSeparateDialog from '@/components/NumberSeparate/EditSeparateDialog.vue'
+import ImageSync from '@/components/ImageSync/index.vue'
 import i18n from '@/locales/i18n'
 import useStore from '@/store'
 import { storeToRefs } from 'pinia'
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
 const prizeConfig = useStore().prizeConfig
+const globalConfig = useStore().globalConfig
 const { getPrizeConfig: localPrizeList, getCurrentPrize: currentPrize } = storeToRefs(prizeConfig)
+const { getImageList: localImageList } = storeToRefs(globalConfig)
 
-const prizeList = ref(localPrizeList)
+// 使用computed属性直接返回store的getPrizeConfig，避免创建ref和监听
+const prizeList = computed(() => localPrizeList.value)
 const selectedPrize = ref<IPrizeConfig | null>()
+
+// 选择图片函数
+function selectImageForPrize(item: IPrizeConfig, imageId: string) {
+  // 1. 直接更新当前item的imageId，实现实时预览
+  item.imageId = imageId;
+  // 2. 找到当前item在prizeList中的索引
+  const index = prizeList.value.findIndex(prize => prize.id === item.id);
+  if (index !== -1) {
+    // 3. 创建一个新的奖项列表数组，确保响应式更新
+    const newPrizeList = [...prizeList.value];
+    // 4. 更新新数组中对应索引的奖项的imageId
+    newPrizeList[index] = {
+      ...newPrizeList[index],
+      imageId: imageId
+    };
+    // 5. 更新store中的奖项列表
+    prizeConfig.setPrizeConfig(newPrizeList);
+  }
+}
+
+// 清除图片函数
+function clearImage(item: IPrizeConfig) {
+  // 1. 直接清空当前item的imageId，实现实时预览
+  item.imageId = '';
+  // 2. 找到当前item在prizeList中的索引
+  const index = prizeList.value.findIndex(prize => prize.id === item.id);
+  if (index !== -1) {
+    // 3. 创建一个新的奖项列表数组，确保响应式更新
+    const newPrizeList = [...prizeList.value];
+    // 4. 清空新数组中对应索引的奖项的imageId
+    newPrizeList[index] = {
+      ...newPrizeList[index],
+      imageId: ''
+    };
+    // 5. 更新store中的奖项列表
+    prizeConfig.setPrizeConfig(newPrizeList);
+  }
+}
 
 function addPrize() {
   const defaultPrizeCOnfig: IPrizeConfig = {
@@ -31,6 +73,7 @@ function addPrize() {
     isUsed: false,
     isShow: true,
     frequency: 1,
+    imageId: '',
   }
   prizeConfig.addPrizeConfig(defaultPrizeCOnfig)
 }
@@ -234,6 +277,49 @@ watch(() => prizeList.value, (val: IPrizeConfig[]) => {
               </li>
             </ul>
             <button v-else class="btn btn-secondary btn-xs">{{ t('button.setting') }}</button>
+          </div>
+        </label>
+        <label class="w-1/2 max-w-xs mb-10 form-control">
+          <div class="label">
+            <span class="label-text">{{ t('table.image') }}</span>
+          </div>
+          <div class="flex flex-col gap-2">
+            <!-- 图片预览容器 -->
+            <div class="flex items-center justify-center w-full">
+              <!-- 显示当前选中的图片预览 -->
+              <div v-if="item.imageId" class="w-16 h-16 overflow-hidden rounded-lg border-2 border-blue-500 shadow-md transition-all duration-300">
+                <!-- 使用ImageSync组件显示图片 -->
+                <ImageSync :img-item="localImageList.find(img => img.id === item.imageId)" />
+              </div>
+              <!-- 显示无图片提示 -->
+              <div v-else class="w-16 h-16 overflow-hidden rounded-lg bg-gray-700 border-2 border-dashed border-gray-500 flex items-center justify-center transition-all duration-300">
+                <span class="text-gray-400 text-xs">未选择图片</span>
+              </div>
+            </div>
+            <!-- 图片选择下拉菜单 -->
+            <select 
+              class="select select-bordered w-full max-w-xs input-sm"
+              @change="(e) => selectImageForPrize(item, (e.target as HTMLSelectElement).value)"
+              :value="item.imageId"
+            >
+              <option value="">{{ t('placeHolder.selectImage') }}</option>
+              <!-- 遍历所有已上传的图片 -->
+              <option 
+                v-for="image in localImageList" 
+                :key="image.id" 
+                :value="image.id"
+              >
+                {{ image.name }}
+              </option>
+            </select>
+            <!-- 清除图片按钮 -->
+            <button 
+              v-if="item.imageId" 
+              class="btn btn-error btn-xs"
+              @click="clearImage(item)"
+            >
+              {{ t('button.clearImage') }}
+            </button>
           </div>
         </label>
         <label class="w-full max-w-xs mb-10 form-control">

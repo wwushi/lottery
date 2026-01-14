@@ -35,6 +35,7 @@ export interface IPrizeConfig {
   isShow: boolean
   isUsed: boolean
   frequency: number
+  imageId: string
 }
 export interface IMusic {
   id: string

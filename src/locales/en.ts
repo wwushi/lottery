@@ -27,6 +27,7 @@ export default {
     close: 'Close',
     noInfoAndImport: 'No Info and import it',
     useDefault: 'Use Default Data',
+    clearImage: 'Clear Image',
   },
   sidebar: {
     personConfiguration: 'Person Configuration',
@@ -133,6 +134,10 @@ export default {
     enterTitle: 'Enter Title',
     name: 'Name',
     winnerCount: 'Lucky Person Count',
+    selectImage: 'Select Image',
+  },
+  tip: {
+    uploadImageFirst: 'Please upload images first in Global Configuration - Image Management',
   },
   data: {
     yes: 'Yes',

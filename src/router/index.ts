@@ -81,15 +81,15 @@ export const configRoutes = {
             icon: 'face',
           },
         },
-        // {
-        //   path: '/log-lottery/config/global/image',
-        //   name: 'ImageConfig',
-        //   component: () => import('@/views/Config/Global/ImageConfig.vue'),
-        //   meta: {
-        //     title: i18n.global.t('sidebar.imagesManagement'),
-        //     icon: 'image',
-        //   },
-        // },
+        {
+          path: '/log-lottery/config/global/image',
+          name: 'ImageConfig',
+          component: () => import('@/views/Config/Global/ImageConfig.vue'),
+          meta: {
+            title: i18n.global.t('sidebar.imagesManagement'),
+            icon: 'image',
+          },
+        },
         {
           path: '/log-lottery/config/global/music',
           name: 'MusicConfig',

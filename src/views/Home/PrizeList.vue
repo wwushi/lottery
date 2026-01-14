@@ -1,6 +1,7 @@
 <script setup lang='ts'>
 import type { IPrizeConfig } from '../../types/storeType'
 import EditSeparateDialog from '@/components/NumberSeparate/EditSeparateDialog.vue'
+import ImageSync from '@/components/ImageSync/index.vue'
 import i18n from '@/locales/i18n'
 import useStore from '@/store'
 
@@ -17,7 +18,7 @@ const prizeConfig = useStore().prizeConfig
 const globalConfig = useStore().globalConfig
 const system = useStore().system
 const { getPrizeConfig: localPrizeList, getCurrentPrize: currentPrize } = storeToRefs(prizeConfig)
-const { getIsShowPrizeList: isShowPrizeList, getPrizeBackgroundColor: prizeBackgroundColor } = storeToRefs(globalConfig)
+const { getIsShowPrizeList: isShowPrizeList, getPrizeBackgroundColor: prizeBackgroundColor, getImageList: localImageList } = storeToRefs(globalConfig)
 const { getIsMobile: isMobile } = storeToRefs(system)
 const prizeListRef = ref()
 const prizeListContainerRef = ref()
@@ -121,28 +122,35 @@ onMounted(() => {
                   v-if="item.isUsed"
                   class="absolute z-50 w-full h-full bg-gray-800/70 item-mask rounded-xl"
                 />
-                <div class="flex flex-col justify-center items-center p-0 text-center card-body">
-                  <div class="flex flex-col justify-center items-center tooltip tooltip-left" :data-tip="item.prizeName || item.name">
-                    <h2
-                      class="w-24 p-0 m-0 overflow-hidden text-center card-title whitespace-nowrap text-ellipsis"
-                    >
-                      {{ item.name }}
-                    </h2>
-                    <p class="p-0 m-0 text-sm">
-                    {{ item.prizeName }}
-                  </p>
+                <div class="flex flex-row items-center justify-between p-2 w-full h-full">
+                  <!-- 奖品图片 -->
+                  <div v-if="item.imageId" class="w-16 h-16 overflow-hidden rounded-lg mr-3 shadow-md">
+                    <!-- 使用ImageSync组件显示图片 -->
+                    <ImageSync :img-item="localImageList.find(img => img.id === item.imageId)" />
                   </div>
-                  <div class="relative w-3/4 mt-[-4px]">
-                    <p class="absolute inset-0 z-40 p-0 m-0 flex items-center justify-center font-medium text-white">
-                    {{ item.isUsedCount }}/{{
-                      item.count }}
-                  </p>
-                    <progress
-                      class="w-full h-6 progress progress-primary" :value="item.isUsedCount"
-                      :max="item.count"
-                    />
+                  <!-- 奖项信息 -->
+                  <div class="flex flex-col justify-center flex-1">
+                    <div class="flex flex-col justify-center items-start tooltip tooltip-left" :data-tip="item.prizeName || item.name">
+                      <h2
+                        class="w-24 p-0 m-0 overflow-hidden text-left card-title whitespace-nowrap text-ellipsis"
+                      >
+                        {{ item.name }}
+                      </h2>
+                      <p class="p-0 m-0 text-sm text-left">
+                      {{ item.prizeName }}
+                    </p>
+                    </div>
+                    <div class="relative w-full mt-[-4px]">
+                      <p class="absolute inset-0 z-40 p-0 m-0 flex items-center justify-center font-medium text-white">
+                      {{ item.isUsedCount }}/{{
+                        item.count }}
+                    </p>
+                      <progress
+                        class="w-full h-4 progress progress-primary" :value="item.isUsedCount"
+                        :max="item.count"
+                      />
+                    </div>
                   </div>
-                  <!-- <p class="p-0 m-0">{{ item.isUsedCount }}/{{ item.count }}</p> -->
                 </div>
               </div>
             </li>

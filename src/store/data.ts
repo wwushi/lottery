@@ -69,6 +69,7 @@ export const defaultPrizeList = <IPrizeConfig[]>[    {
         isShow: true,
         isUsed: false,
         frequency: 1,
+        imageId: '',
     },
     {
         id: '004',
@@ -86,6 +87,7 @@ export const defaultPrizeList = <IPrizeConfig[]>[    {
         isShow: true,
         isUsed: false,
         frequency: 1,
+        imageId: '',
     },
     {
         id: '003',
@@ -103,6 +105,7 @@ export const defaultPrizeList = <IPrizeConfig[]>[    {
         isShow: true,
         isUsed: false,
         frequency: 1,
+        imageId: '',
     },
     {
         id: '002',
@@ -120,6 +123,7 @@ export const defaultPrizeList = <IPrizeConfig[]>[    {
         isShow: true,
         isUsed: false,
         frequency: 1,
+        imageId: '',
     },
     {
         id: '001',
@@ -137,6 +141,7 @@ export const defaultPrizeList = <IPrizeConfig[]>[    {
         isShow: true,
         isUsed: false,
         frequency: 1,
+        imageId: '',
     },
 ]
 export const defaultCurrentPrize = <IPrizeConfig>{
@@ -147,11 +152,6 @@ export const defaultCurrentPrize = <IPrizeConfig>{
     isAll: false,
     count: 5,
     isUsedCount: 0,
-    picture: {
-        id: '4',
-        name: '五等奖',
-        url: `${originUrl}/resource/image/image5.png`,
-    },
     separateCount: {
         enable: false,
         countList: [],
@@ -160,6 +160,7 @@ export const defaultCurrentPrize = <IPrizeConfig>{
     isShow: true,
     isUsed: false,
     frequency: 1,
+    imageId: '',
 }
 export const defaultTemporaryPrize = <IPrizeConfig>{
     id: '',
@@ -169,11 +170,6 @@ export const defaultTemporaryPrize = <IPrizeConfig>{
     isAll: false,
     count: 1,
     isUsedCount: 0,
-    picture: {
-        id: '-1',
-        name: '',
-        url: '',
-    },
     separateCount: {
         enable: true,
         countList: [],
@@ -182,6 +178,7 @@ export const defaultTemporaryPrize = <IPrizeConfig>{
     isShow: false,
     isUsed: false,
     frequency: 1,
+    imageId: '',
 }
 
 export const defaultImageList = [
